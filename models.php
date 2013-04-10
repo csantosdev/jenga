@@ -3,7 +3,7 @@
  * Either require_once or define your models here
  */
 require_once 'models/models.php';
-require_once '../Pengo/models/fields.php';
+require_once '../Jenga/models/fields.php';
 
 class User extends Model {
 	
@@ -18,15 +18,10 @@ class User extends Model {
 
 class Comment extends Model {
 
-	private $user = array('field'=>'ForeignKey', 'model'=>'User', 'null'=>false, 'blank'=>false);
+	private static $user = array('ForeignKey', 'model'=>'User', 'null'=>false, 'blank'=>false);
+	private static $title = array('CharField', 'max_length' => 100);
+	private static $body = 'TextField'; // or array('TextField')
 	
-	private $table_name = 'comment';
+	private static $table_name = 'comment';
 	
-	public function __construct() {
-		parent::__construct();
-		$this->user = new ForeignKey(array('model' => 'User', 'null' => false, 'blank' => false));
-		$this->title = new CharField(array('max_length' => 100));
-		$this->body = new TextField(null);
-	}
-
 }

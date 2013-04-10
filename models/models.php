@@ -1,6 +1,6 @@
 <?php
-require_once '../Pengo/managers.php';
-require_once '../Pengo/models/fields.php';
+require_once '../Jenga/managers.php';
+require_once '../Jenga/models/fields.php';
 
 class Model
 {
