@@ -10,10 +10,6 @@ class BasicModelManager {
 	}
 	
 	public function filter($conditions) {
-		var_dump($conditions);
-		var_dump($this->model);
-		var_dump(new $this->model());
-		
 		return new QuerySet($this->model, $conditions);
 	}
 	

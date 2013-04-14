@@ -18,10 +18,20 @@ class User extends Model {
 
 class Comment extends Model {
 
-	private static $user = array('ForeignKey', 'model'=>'User', 'null'=>false, 'blank'=>false);
-	private static $title = array('CharField', 'max_length' => 100);
-	private static $body = 'TextField'; // or array('TextField')
+	public $post = array('ForeignKey', 'model'=>'Post');
+	public $user = array('ForeignKey', 'model'=>'User', 'null'=>false, 'blank'=>false);
+	public $title = array('CharField', 'max_length'=>100);
+	public $body = 'TextField'; // or array('TextField')
 	
-	private static $table_name = 'comment';
+	public $_meta = array('table_name'=>'comment');
+}
+
+class Post extends Model {
+	
+	public $blog = array('ForeignKey', 'model'=>'Blog');
+	public $title = 'TextField';
+}
+
+class Blog extends Model {
 	
 }
