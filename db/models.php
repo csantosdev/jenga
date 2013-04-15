@@ -1,20 +1,10 @@
 <?php
-require_once '../Jenga/managers.php';
-require_once '../Jenga/models/fields.php';
-
 class Model
 {
 	public $id = 'IntField';
 	protected $_meta = array();
 	
 	protected static $objects;
-	
-	/**
-	 * Related objects hide in here until they are evaluated.
-	 * Then they are attached to it's parent model.
-	 * @var Array
-	 */
-	private $related_objects = array();
 	
 	public function __get($name) {
 		if(!isset($this->related_objects[$name]))

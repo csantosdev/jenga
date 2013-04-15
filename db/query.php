@@ -2,17 +2,22 @@
 class QuerySet implements Countable, Iterator, ArrayAccess {
 	
 	private $model;
+	private $model_properties = array();
+	
 	private $models = array();
 	private $reflection_models = array();
 	private $conditions = array();
 	private $objects = null;
 	private $position = 0;
 	
-	private $field_list = array('ForeignKey', 'OneToMany', 'ManyToMany', 'CharField', 'TextField', 'IntField');
-	
 	public function __construct($model, $conditions) {
 		$this->model = new ReflectionClass($model);
 		$this->conditions = $conditions;
+	}
+	
+	public function __get($name) {
+		$objects = $this->get_objects();
+		return $objects[0]->$name;
 	}
 	
 	public function filter($conditions) {
@@ -108,8 +113,6 @@ class QuerySet implements Countable, Iterator, ArrayAccess {
 	
 	private function build_query() {
 		
-		require_once 'models.php';
-		
 		$joins = array();
 		$fields = array();
 		$wheres = array();
@@ -121,36 +124,35 @@ class QuerySet implements Countable, Iterator, ArrayAccess {
 			
 			$pieces = explode('__', $condition);
 			
-			foreach($pieces as $piece) {
+			foreach($pieces as $field_name) {
 				
-				$current_model_fields = $current_model->getDefaultProperties();
+				$current_model_fields = $this->get_model_fields($current_model->getName());
 				
-				// Check if it's a property
-				if(!isset($current_model_fields[$piece]))
-					throw new Exception('model ' . $current_model->getName(). ' has no property ' . $piece);
+				if(!isset($current_model_fields[$field_name]))
+					throw new Exception('model ' . $current_model->getName(). ' has no property ' . $field_name);
 				
-				$field = $current_model_fields[$piece];
+				$field = $current_model_fields[$field_name];
 				
-				if(!is_string($field) && !is_array($field))
-					throw new Exception($field . ' must be a string or an array');
-
-				if(is_string($field))
-					$field_name = $field;
-				else if(isset($field['field']))
-					$field_name = $field['field'];
-				else
-					$field_name = $field[0];
-				
-				switch($field_name) {
-					case 'ForeignKey':
+				switch($field['type']) {
+					case FOREIGN_KEY:
 						$joins[] = array('table'=>strtolower($field['model']), 'on_table'=> strtolower($current_model->getName()));
 						$current_model = new ReflectionClass($field['model']); // change to get_reflection_model()
 						$this->reflection_models[$field['model']] = $current_model;
 						break;
 						
-					case 'IntField':
-						$wheres[] = array('table'=> strtolower($current_model->getName()), 'field'=> $piece, 'eval' => $current_eval, 'value'=>$value);
+					case MANY_TO_MANY:
+						$joins[] = array('table'=>strtolower($field['model']), 'on_table'=> strtolower($current_model->getName()));
+						$current_model = new ReflectionClass($field['model']); // change to get_reflection_model()
+						$this->reflection_models[$field['model']] = $current_model;
 						break;
+						
+					case INT_FIELD:
+						$wheres[] = array('table'=> strtolower($current_model->getName()), 'field'=> $field_name, 'eval' => $current_eval, 'value'=>$value);
+						break;
+						
+					default:
+						var_dump($field);
+						throw new Exception('Field type: ' . $field['type'] . ' is unknown.');
 				}
 			}
 		}
@@ -184,11 +186,6 @@ class QuerySet implements Countable, Iterator, ArrayAccess {
 		return $query;
 	}
 	
-	private function get_model($model) {
-		if(!isset($this->models[$model]))
-			$this->models[$model] = new $model();	
-		return $this->models[$model];
-	}
 	
 	private function get_field_name($field) {
 		return strtolower($field['model'] . '_id');
@@ -222,39 +219,58 @@ class QuerySet implements Countable, Iterator, ArrayAccess {
 			$row = mysql_fetch_array($result);
 			$class_name = $this->model->getName();
 			$obj = new $class_name();
-			$default_properties = $this->model->getDefaultProperties();
-			
+			$fields = $this->get_model_fields($this->model->getName());	
+					
 			foreach($row as $col_name => $value) {
-				foreach($default_properties as $property_name => $field) {
-					if($col_name == $property_name) {
-						// Get the field name (ForeignKey, IntField, etc)
-						if(is_string($field) && in_array($field, $this->field_list)) {
-							$field_name = $field;
-						} else if(is_array($field) && (array_key_exists(0, $field) || array_key_exists('field', $field))) {
-							if(is_string($field[0]) && in_array($field[0], $this->field_list)) {
-								$field_name = $field[0];
-							} else if(isset($field['field']) && in_array($field['field'], $this->field_list)) {
-								$field_name = $field['field'];
-							}
-						} else {
-							continue;
-						}
-						
-						switch($field_name) {
-							case 'ForeignKey':
-								$obj->$property_name = new QuerySet($field['model'], array('id'=>$value));
-								break;
-								
-							default:
-								$obj->$property_name = $value;
-								break;
-						}
-						
+				
+				if(isset($fields[$col_name])) {
+					$field = $fields[$col_name];
+					
+					var_dump($field);
+					switch($field['type']) {
+						case FOREIGN_KEY:
+							$obj->$col_name = new QuerySet($field['model'], array('id'=>$value));
+							break;
+					
+						default:
+							$obj->$col_name = $value;
+							break;
 					}
+					
 				}
 			}
+			
 			$objects[] = $obj;
 		}
 		return $this->objects = $objects;
+	}
+	
+	private function get_model_fields($model) {
+		
+		if(isset(Jenga::$MODEL_FIELDS[$model]))
+			return Jenga::$MODEL_FIELDS[$model];
+		
+		$fields = array();
+		$reflection_obj = new ReflectionClass($model);
+		$default_properties = $reflection_obj->getDefaultProperties();
+		
+		foreach($default_properties as $property_name => $field) {
+			
+			if(is_string($field) && in_array($field, Jenga::$MODEL_FIELD_LIST)) {
+				$field = array('type' => $field);
+			} else if(is_array($field) && (array_key_exists(0, $field) || array_key_exists('type', $field))) {
+				if(is_string($field[0]) && in_array($field[0], Jenga::$MODEL_FIELD_LIST)) {
+					$field['type'] = $field[0];
+				} else if(isset($field['type']) && in_array($field['type'], Jenga::$MODEL_FIELD_LIST)) {
+					
+				}
+			} else
+				continue;
+		
+			
+			$fields[$property_name] = $field;
+		}
+		
+		return Jenga::$MODEL_FIELDS[$model] = $fields;
 	}
 }

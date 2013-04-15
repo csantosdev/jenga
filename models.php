@@ -2,9 +2,6 @@
 /**
  * Either require_once or define your models here
  */
-require_once 'models/models.php';
-require_once '../Jenga/models/fields.php';
-
 class User extends Model {
 	
 	public $table_name = 'users';
@@ -30,8 +27,15 @@ class Post extends Model {
 	
 	public $blog = array('ForeignKey', 'model'=>'Blog');
 	public $title = 'TextField';
+	public $categories = array('ManyToMany', 'model'=>'Category');
 }
 
 class Blog extends Model {
 	
+	public $name = 'CharField';
+}
+
+class Category extends Model {
+	
+	public $name = 'CharField';
 }

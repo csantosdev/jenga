@@ -1,19 +1,39 @@
 <?php
 class Field {
 	
-	private $name;
-	
+	protected $name;
+	protected $null = true;
+	protected $blank = true;
 }
 
-class ForeignKey extends Field {
+class RelatedField extends Field {
+	
+	protected $model;
+}
 
+class ForeignKey extends RelatedField {
+
+	protected $model;
+	
 	public function __toString() {
 		return '<ForeignKey object>';
 	}
 
 	public function __construct($args) {
-
+		$this->model = $args['model'];
+		if(isset($args['null']))
+			$this->null = $args['null'];
+		if(isset($args['blank']))
+			$this->blank = $args['blank'];
 	}
+}
+
+class ManyToMany extends RelatedField {
+	
+}
+
+class OneToMany extends RelatedField {
+	
 }
 
 class CharField extends Field {

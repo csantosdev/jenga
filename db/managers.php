@@ -1,6 +1,4 @@
 <?php
-require_once 'query.php';
-
 class BasicModelManager {
 	
 	private $model; // string
@@ -13,4 +11,8 @@ class BasicModelManager {
 		return new QuerySet($this->model, $conditions);
 	}
 	
+	public function get($conditions) {
+		$qs = new QuerySet($this->model, $conditions);
+		return $qs[0];
+	}
 }
