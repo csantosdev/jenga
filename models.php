@@ -1,4 +1,6 @@
 <?php
+use Jenga\DB\Models\Model;
+
 /**
  * Either require_once or define your models here
  */

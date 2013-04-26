@@ -1,4 +1,6 @@
 <?php
+namespace Jenga\DB\Fields;
+
 class Field {
 	
 	protected $name;

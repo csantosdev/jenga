@@ -1,4 +1,7 @@
 <?php
+namespace Jenga\DB\Models;
+use Jenga\DB\Managers\BasicModelManager;
+
 class Model
 {
 	public $id = 'IntField';
@@ -23,6 +26,6 @@ class Model
 	public function get_table_name() {
 		if(!empty($this->_meta['table_name']))
 			return $this->_meta['table_name'];
-		return get_class();
+		return strtolower(get_class());
 	}
 }

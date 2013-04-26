@@ -1,5 +1,7 @@
 <?php
-class QuerySet implements Countable, Iterator, ArrayAccess {
+namespace Jenga\DB\Query;
+
+class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 	
 	private $model;
 	private $model_properties = array();
@@ -11,7 +13,7 @@ class QuerySet implements Countable, Iterator, ArrayAccess {
 	private $position = 0;
 	
 	public function __construct($model, $conditions) {
-		$this->model = new ReflectionClass($model);
+		$this->model = new \ReflectionClass($model);
 		$this->conditions = $conditions;
 	}
 	
@@ -136,13 +138,13 @@ class QuerySet implements Countable, Iterator, ArrayAccess {
 				switch($field['type']) {
 					case FOREIGN_KEY:
 						$joins[] = array('table'=>strtolower($field['model']), 'on_table'=> strtolower($current_model->getName()));
-						$current_model = new ReflectionClass($field['model']); // change to get_reflection_model()
+						$current_model = new \ReflectionClass($field['model']); // change to get_reflection_model()
 						$this->reflection_models[$field['model']] = $current_model;
 						break;
 						
 					case MANY_TO_MANY:
 						$joins[] = array('table'=>strtolower($field['model']), 'on_table'=> strtolower($current_model->getName()));
-						$current_model = new ReflectionClass($field['model']); // change to get_reflection_model()
+						$current_model = new \ReflectionClass($field['model']); // change to get_reflection_model()
 						$this->reflection_models[$field['model']] = $current_model;
 						break;
 						
@@ -199,6 +201,7 @@ class QuerySet implements Countable, Iterator, ArrayAccess {
 		if($this->objects !== null)
 			return $this->objects;
 		
+		//TODO: Obviosly remove this later
 		$db = mysql_connect('localhost', 'root', null);
 		mysql_select_db('test', $db);
 		$objects = array();
@@ -247,21 +250,21 @@ class QuerySet implements Countable, Iterator, ArrayAccess {
 	
 	private function get_model_fields($model) {
 		
-		if(isset(Jenga::$MODEL_FIELDS[$model]))
-			return Jenga::$MODEL_FIELDS[$model];
+		if(isset(\Jenga::$MODEL_FIELDS[$model]))
+			return \Jenga::$MODEL_FIELDS[$model];
 		
 		$fields = array();
-		$reflection_obj = new ReflectionClass($model);
+		$reflection_obj = new \ReflectionClass($model);
 		$default_properties = $reflection_obj->getDefaultProperties();
 		
 		foreach($default_properties as $property_name => $field) {
 			
-			if(is_string($field) && in_array($field, Jenga::$MODEL_FIELD_LIST)) {
+			if(is_string($field) && in_array($field, \Jenga::$MODEL_FIELD_LIST)) {
 				$field = array('type' => $field);
 			} else if(is_array($field) && (array_key_exists(0, $field) || array_key_exists('type', $field))) {
-				if(is_string($field[0]) && in_array($field[0], Jenga::$MODEL_FIELD_LIST)) {
+				if(is_string($field[0]) && in_array($field[0], \Jenga::$MODEL_FIELD_LIST)) {
 					$field['type'] = $field[0];
-				} else if(isset($field['type']) && in_array($field['type'], Jenga::$MODEL_FIELD_LIST)) {
+				} else if(isset($field['type']) && in_array($field['type'], \Jenga::$MODEL_FIELD_LIST)) {
 					
 				}
 			} else
@@ -271,6 +274,6 @@ class QuerySet implements Countable, Iterator, ArrayAccess {
 			$fields[$property_name] = $field;
 		}
 		
-		return Jenga::$MODEL_FIELDS[$model] = $fields;
+		return \Jenga::$MODEL_FIELDS[$model] = $fields;
 	}
 }

@@ -1,4 +1,7 @@
 <?php
+namespace Jenga\DB\Managers;
+use Jenga\DB\Query\QuerySet;
+
 class BasicModelManager {
 	
 	private $model; // string
