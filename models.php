@@ -41,3 +41,9 @@ class Category extends Model {
 	
 	public $name = 'CharField';
 }
+
+class Site extends Model {
+	
+	public $name = array('CharField', 'default'=>'iCandy Clothing');
+	public $description = Jenga::TextField;
+}

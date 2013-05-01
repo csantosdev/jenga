@@ -3,9 +3,44 @@ namespace Jenga\DB\Fields;
 
 class Field {
 	
-	protected $name;
-	protected $null = true;
-	protected $blank = true;
+	private $properties = array(
+		'null' => true,
+		'blank' => true
+	);
+	
+	public function __get($name) {
+		if(isset($this->properties[$name]))
+			return $this->properties[$name];
+		return null;
+	}
+	
+	public function has_default() {
+		if(isset($this->default))
+			return true;
+		return false;
+	}
+	
+	public function has_max_length() {
+		if(isset($this->max_length))
+			return $this->max_length;
+		return false;
+	}
+	
+	public function is_null() {
+		if(isset($this->null) && $this->null === true)
+			return true;
+		return false;
+	}
+	
+	public function is_blank() {
+		if(isset($this->blank) && $this->blank === true)
+			return true;
+		return false;
+	}
+}
+
+class NumberField extends Field {
+	public $max_length = 11;
 }
 
 class RelatedField extends Field {
@@ -54,7 +89,10 @@ class CharField extends Field {
 class TextField extends Field {
 
 	public function __construct($args) {
-
+		$this->properties = $args;
+		
+		if($this->has_default())
+			echo "I have a default: " . $this->default;
 	}
 }
 
@@ -62,14 +100,14 @@ class BooleanField extends Field {
 	
 }
 
-class IntField extends Field {
+class IntField extends NumberField {
 	
 }
 
-class FloatField extends Field {
+class FloatField extends NumberField {
 	
 }
 
-class PositiveIntField extends Field {
-	
+class PositiveIntField extends NumberField {
+
 }
