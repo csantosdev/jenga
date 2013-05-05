@@ -125,6 +125,14 @@ class PDO extends AbstractConnection {
 	public function remove_index() {
 		
 	}
+	
+	public function save_model($model) {
+		
+		// Loop fields
+		// if FK -> save in separate table
+		// if M2M -> save in separate table in forloop
+		
+	}
 }
 
 class MySQL {

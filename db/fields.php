@@ -84,6 +84,10 @@ class CharField extends Field {
 			$this->max_length = (string)$args['max_length'];
 		}
 	}
+	
+	public static function validate($value) {
+		
+	}
 }
 
 class TextField extends Field {
@@ -94,6 +98,10 @@ class TextField extends Field {
 		if($this->has_default())
 			echo "I have a default: " . $this->default;
 	}
+	
+	public static function validate($value) {
+	
+	}
 }
 
 class BooleanField extends Field {
@@ -102,12 +110,18 @@ class BooleanField extends Field {
 
 class IntField extends NumberField {
 	
+	public static function validate($value) {
+		if(!is_numeric($value) || !is_int($value))
+			throw new \Exception($value . ' is not of type Int');
+		return true;
+	}
+	
 }
 
 class FloatField extends NumberField {
 	
 }
 
-class PositiveIntField extends NumberField {
+class PositiveIntField extends IntField {
 
 }

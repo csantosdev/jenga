@@ -18,7 +18,7 @@ class Jenga {
 	const IntField = 'IntField';
 	const PositiveIntField = 'PositiveIntField';
 	const CharField = 'CharField';
-	const TextField = 'TextFeld';
+	const TextField = 'TextField';
 	
 	public static $db;
 	
