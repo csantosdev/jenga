@@ -2,7 +2,7 @@
 namespace Jenga\DB\Connections;
 use Jenga\Helpers;
 
-abstract class AbstractConnection {
+abstract class Connection {
 	
 	const SQL_ADD_TABLE = 'CREATE TABLE %s (%s int(%d) %s %s, PRIMARY KEY (%s)) ENGINE=%s DEFAULT CHARSET=%s AUTO_INCREMENT=1 ;';
 	const SQL_ALTER_TABLE = 'ALTER TABLE %s ';
@@ -24,6 +24,7 @@ abstract class AbstractConnection {
 	public abstract function connect($host, $user, $pass, $database);
 	
 	public abstract function disconnect();
+	
 	
 	public function add_table($args) {
 		$model = Helpers::instantiate_skeleton_model($args['model']);
@@ -65,9 +66,11 @@ abstract class AbstractConnection {
 	
 	public abstract function remove_index();
 	
+	protected abstract function get_resource();
+	
 }
 
-class PDO extends AbstractConnection {
+class PDO extends Connection {
 	
 	public function connect($host, $user, $pass, $database) {
 		
@@ -133,18 +136,6 @@ class PDO extends AbstractConnection {
 		// if M2M -> save in separate table in forloop
 		
 	}
-}
-
-class MySQL {
-	const MYISAM = 'MyISAM';
-	const PRIMARY_KEY = 'PRIMARY KEY';
 	
-}
-class Postgres {
-
-}
-
-class Mongo {
-	
-	
+	protected function get_resource() {}
 }

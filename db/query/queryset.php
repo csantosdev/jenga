@@ -1,5 +1,7 @@
 <?php
 namespace Jenga\DB\Query;
+use Jenga\Helpers;
+use Jenga\DB\Fields as fields;
 
 class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 	
@@ -13,7 +15,7 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 	private $position = 0;
 	
 	public function __construct($model, $conditions) {
-		$this->model = new \ReflectionClass($model);
+		$this->model = Helpers::get_model_reflection($model);
 		$this->conditions = $conditions;
 	}
 	
@@ -113,8 +115,9 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 	}
 	
 	
-	private function build_query() {
+	private function build_query() { // Change to parse_query()
 		
+		$models = array();
 		$joins = array();
 		$fields = array();
 		$wheres = array();
@@ -128,27 +131,34 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 			
 			foreach($pieces as $field_name) {
 				
-				$current_model_fields = $this->get_model_fields($current_model->getName());
+				$model_reflection = Helpers::get_model_reflection($current_model->getName());
+				$current_model_fields = $model_reflection->getDefaultProperties();
 				
 				if(!isset($current_model_fields[$field_name]))
 					throw new Exception('model ' . $current_model->getName(). ' has no property ' . $field_name);
 				
-				$field = $current_model_fields[$field_name];
+				$field = $current_model_fields[$field_name]; // ex: array('ForeignKey', 'model' => 'Post')
 				
-				switch($field['type']) {
-					case FOREIGN_KEY:
+				// Check if the field is a validate Field Class
+				if(Helpers::get_field_type($field) === null)
+					throw new Exception('Unknown field type on model property: ' . $field_name);
+				
+				if(!in_array($models, $))
+				
+				switch($field) {
+					case fields\ForeignKey:
 						$joins[] = array('table'=>strtolower($field['model']), 'on_table'=> strtolower($current_model->getName()));
 						$current_model = new \ReflectionClass($field['model']); // change to get_reflection_model()
 						$this->reflection_models[$field['model']] = $current_model;
 						break;
 						
-					case MANY_TO_MANY:
+					case fields\ManyToMany:
 						$joins[] = array('table'=>strtolower($field['model']), 'on_table'=> strtolower($current_model->getName()));
 						$current_model = new \ReflectionClass($field['model']); // change to get_reflection_model()
 						$this->reflection_models[$field['model']] = $current_model;
 						break;
 						
-					case INT_FIELD:
+					case fields\IntField:
 						$wheres[] = array('table'=> strtolower($current_model->getName()), 'field'=> $field_name, 'eval' => $current_eval, 'value'=>$value);
 						break;
 						
@@ -201,9 +211,7 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 		if($this->objects !== null)
 			return $this->objects;
 		
-		//TODO: Obviosly remove this later
-		$db = mysql_connect('localhost', 'root', null);
-		mysql_select_db('test', $db);
+		$db = Jenga::get_db();
 		$objects = array();
 		
 		try {

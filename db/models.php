@@ -83,7 +83,6 @@ class Model
 		$db = \Jenga::get_db();
 		
 		if($new) {
-			$db->insert
 		}
 	}
 }

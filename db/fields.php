@@ -1,6 +1,12 @@
 <?php
 namespace Jenga\DB\Fields;
 
+const Field = 'Jenga\\DB\\Fields\\Field';
+const IntField = 'Jenga\\DB\\Fields\\IntField';
+const PositiveIntField = 'Jenga\\DB\\Fields\\PositiveIntField';
+const CharField = 'Jenga\\DB\\Fields\\CharField';
+const TextField = 'Jenga\\DB\\Fields\\TextField';
+
 class Field {
 	
 	private $properties = array(

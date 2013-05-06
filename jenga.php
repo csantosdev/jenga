@@ -7,9 +7,16 @@ require_once 'settings.php';
 
 require_once 'db/fields.php';
 require_once 'db/models.php';
-require_once 'db/query.php';
+require_once 'db/query/queryset.php';
+require_once 'db/query/select.php';
+require_once 'db/query/update.php';
+require_once 'db/query/delete.php';
+require_once 'db/query/insert.php';
+require_once 'db/query/builder.php';
 require_once 'db/managers.php';
-require_once 'db/connections.php';
+require_once 'db/connections/init.php';
+require_once 'db/connections/mysql/init.php';
+require_once 'db/connections/mongo/init.php';
 
 require_once 'helpers.php';
 
@@ -44,6 +51,7 @@ class Jenga {
 	
 	
 	public static function get_db() {
+		
 		if(static::$db != null)
 			return static::$db;
 		
@@ -54,8 +62,4 @@ class Jenga {
 		
 		return static::$db;
 	}
-	
 }
-
-
-

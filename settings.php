@@ -7,7 +7,7 @@ $JENGA_SETTINGS = array(
 			'user' => 'root',
 			'pass' => '',
 			'name' => 'test',
-			'driver' => JENGA_PDO_BACKEND,
+			'driver' => JENGA_MYSQL_BACKEND,
 		)
 	)		
 );

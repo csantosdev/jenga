@@ -7,6 +7,27 @@ class Helpers {
 	
 	private static $reflection_classes = array();
 	
+	public static function get_model_reflection($model_name) {
+		
+		if(!isset(self::$reflection_classes[$model_name]))
+			self::$reflection_classes[$model_name] = new \ReflectionClass($model_name);
+		return self::$reflection_classes[$model_name];
+	}
+	
+	public static function get_model_table_name($model_name) {
+		$reflection = self::get_model_reflection($model_name);
+		$properties = $reflection->getDefaultProperties();
+		
+		if(isset($properties['_meta']['table_name']))
+			return $properties['_meta']['table_name'];
+		return strtolower($reflection->getName());
+	}
+	
+	/**
+	 * Checks to see if the Field array on a model is valid
+	 * 
+	 * @param string|array $field
+	 */
 	public static function get_field_type($field) {
 		
 		$class_name = null;
@@ -23,7 +44,7 @@ class Helpers {
 			return null;
 		
 		try {
-			$reflection = new \ReflectionClass($class_name);
+			$reflection = self::get_model_reflection($class_name);
 			
 			if($reflection->isSubclassOf(models\Field))
 				return $class_name;
