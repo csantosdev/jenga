@@ -1,10 +1,11 @@
 <?php
-use Jenga\DB\Models as m;
+use Jenga\DB\Models\Model;
+use Jenga\DB\Fields as f;
 
 /**
  * Either require_once or define your models here
  */
-class User extends m\Model {
+class User extends Model {
 	
 	public $table_name = 'users';
 	
@@ -15,7 +16,7 @@ class User extends m\Model {
 	}
 }
 
-class Comment extends m\Model {
+class Comment extends Model {
 
 	public $post = array('ForeignKey', 'model'=>'Post');
 	public $user = array('ForeignKey', 'model'=>'User', 'null'=>false, 'blank'=>false);
@@ -25,27 +26,27 @@ class Comment extends m\Model {
 	public $_meta = array('table_name'=>'comment');
 }
 
-class Post extends m\Model {
+class Post extends Model {
 	
-	public $blog = array('ForeignKey', 'model'=>'Blog');
-	public $title = 'TextField';
-	public $categories = array('ManyToMany', 'model'=>'Category');
+	public $blog = array(f\ForeignKey, 'model'=>'Blog');
+	public $title = f\TextField;
+	public $categories = array(f\ManyToMany, 'model'=>'Category');
 }
 
-class Blog extends m\Model {
+class Blog extends Model {
 	
 	public $name = 'CharField';
 }
 
-class Category extends m\Model {
+class Category extends Model {
 	
 	public $name = 'CharField';
 }
 
-class Site extends m\Model {
+class Site extends Model {
 	
-	public $name = array(m\CharField, 'default'=>'iCandy Clothing');
-	public $description = array(m\TextField);
+	public $name = array(f\CharField, 'default'=>'iCandy Clothing');
+	public $description = array(f\TextField);
 	
 	public $has_rendered = false;
 }

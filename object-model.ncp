@@ -1,0 +1,128 @@
+<Project>
+  <Name>Jenga</Name>
+  <ProjectItem type="NClass.DiagramEditor.ClassDiagram.Diagram" assembly="NClass.DiagramEditor, Version=2.4.1823.0, Culture=neutral, PublicKeyToken=null">
+    <Name>main</Name>
+    <Language>Java</Language>
+    <Entities>
+      <Entity type="Class">
+        <Name>Model</Name>
+        <Access>Public</Access>
+        <Location left="64" top="23" />
+        <Size width="172" height="105" />
+        <Collapsed>False</Collapsed>
+        <Member type="Method">public static Manager objects()</Member>
+        <Modifier>None</Modifier>
+      </Entity>
+      <Entity type="Class">
+        <Name>Manager</Name>
+        <Access>Public</Access>
+        <Location left="297" top="38" />
+        <Size width="176" height="111" />
+        <Collapsed>False</Collapsed>
+        <Modifier>None</Modifier>
+      </Entity>
+      <Entity type="Class">
+        <Name>QuerySet</Name>
+        <Access>Public</Access>
+        <Location left="626" top="260" />
+        <Size width="212" height="179" />
+        <Collapsed>False</Collapsed>
+        <Member type="Method">public Array filter()</Member>
+        <Member type="Method">public Model get()</Member>
+        <Member type="Method">public bool save()</Member>
+        <Member type="Method">public bool delete()</Member>
+        <Member type="Method">protected void get_objects()</Member>
+        <Modifier>None</Modifier>
+      </Entity>
+      <Entity type="Class">
+        <Name>Select</Name>
+        <Access>Public</Access>
+        <Location left="707" top="571" />
+        <Size width="164" height="104" />
+        <Collapsed>False</Collapsed>
+        <Modifier>None</Modifier>
+      </Entity>
+      <Entity type="Class">
+        <Name>QueryBuilder</Name>
+        <Access>Public</Access>
+        <Location left="345" top="193" />
+        <Size width="193" height="230" />
+        <Collapsed>False</Collapsed>
+        <Member type="Field">private Arrray tables</Member>
+        <Member type="Field">private Array joins</Member>
+        <Member type="Field">private Array orders</Member>
+        <Member type="Method">public void add_table()</Member>
+        <Member type="Method">public void add_join()</Member>
+        <Member type="Method">public void add_order()</Member>
+        <Member type="Method">public void add_count()</Member>
+        <Member type="Method">public void add_sum()</Member>
+        <Member type="Method">public void add_select_column()</Member>
+        <Modifier>Abstract</Modifier>
+      </Entity>
+      <Entity type="Class">
+        <Name>MongoQueryBuilder</Name>
+        <Access>Public</Access>
+        <Location left="182" top="484" />
+        <Size width="176" height="162" />
+        <Collapsed>False</Collapsed>
+        <Member type="Method">public void add_table()</Member>
+        <Member type="Method">public void add_join()</Member>
+        <Member type="Method">public void add_order()</Member>
+        <Modifier>None</Modifier>
+      </Entity>
+      <Entity type="Class">
+        <Name>SQLQueryBuilder</Name>
+        <Access>Public</Access>
+        <Location left="502" top="484" />
+        <Size width="173" height="136" />
+        <Collapsed>False</Collapsed>
+        <Modifier>None</Modifier>
+      </Entity>
+      <Entity type="Class">
+        <Name>BaseQuerySet</Name>
+        <Access>Public</Access>
+        <Location left="554" top="38" />
+        <Size width="364" height="158" />
+        <Collapsed>False</Collapsed>
+        <Member type="Method">public Array parse_conditions(Model model, Array related_models)</Member>
+        <Modifier>None</Modifier>
+      </Entity>
+    </Entities>
+    <Relationships>
+      <Relationship type="Generalization" first="5" second="4">
+        <StartOrientation>Vertical</StartOrientation>
+        <EndOrientation>Vertical</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>362</X>
+          <Y>453</Y>
+        </BendPoint>
+        <BendPoint relativeToStartShape="False">
+          <X>442</X>
+          <Y>448</Y>
+        </BendPoint>
+      </Relationship>
+      <Relationship type="Generalization" first="6" second="4">
+        <StartOrientation>Vertical</StartOrientation>
+        <EndOrientation>Vertical</EndOrientation>
+      </Relationship>
+      <Relationship type="Association" first="6" second="3">
+        <StartOrientation>Vertical</StartOrientation>
+        <EndOrientation>Vertical</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>595</X>
+          <Y>645</Y>
+        </BendPoint>
+        <Direction>Unidirectional</Direction>
+        <AssociationType>Composition</AssociationType>
+      </Relationship>
+      <Relationship type="Generalization" first="2" second="7">
+        <StartOrientation>Vertical</StartOrientation>
+        <EndOrientation>Vertical</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>737</X>
+          <Y>234</Y>
+        </BendPoint>
+      </Relationship>
+    </Relationships>
+  </ProjectItem>
+</Project>

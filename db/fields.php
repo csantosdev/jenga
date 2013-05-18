@@ -6,6 +6,8 @@ const IntField = 'Jenga\\DB\\Fields\\IntField';
 const PositiveIntField = 'Jenga\\DB\\Fields\\PositiveIntField';
 const CharField = 'Jenga\\DB\\Fields\\CharField';
 const TextField = 'Jenga\\DB\\Fields\\TextField';
+const ForeignKey = 'Jenga\\DB\\Fields\\ForeignKey';
+const ManyToMany = 'Jenga\\DB\\Fields\\ManyToMany';
 
 class Field {
 	

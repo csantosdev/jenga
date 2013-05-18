@@ -1,5 +1,5 @@
 <?php
-namespace Jenga\DB\Query;
+namespace Jenga\DB\Query\SQL;
 
 class Select {
 	
@@ -15,8 +15,8 @@ class Select {
 		$this->table = $table;
 	}
 	
-	public function add_inner_join($joined_table, $joined_table_field, $on_table, $on_table_field) {
-		$this->joins[] = sprintf('INNER JOIN %s ON ("%s"."%s" = "%s"."%s")', $joined_table, $joined_table_field, $on_table, $on_table_field);
+	public function add_inner_join($joined_table, $joined_table_column, $on_table, $on_table_column) {
+		$this->joins[] = sprintf('INNER JOIN %s ON ("%s"."%s" = "%s"."%s")', $joined_table, $joined_table_column, $on_table, $on_table_column);
 	}
 	
 	public function build() {

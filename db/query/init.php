@@ -2,6 +2,121 @@
 namespace Jenga\DB\Query;
 use Jenga\Helpers;
 use Jenga\DB\Fields as fields;
+use Jenga\DB\Models as models;
+use Jenga\DB\Models\IntrospectionModel;
+use Jenga\DB\Query\SQL\SQLQueryBuilder;
+
+abstract class BaseQuerySet {
+
+	protected $model;
+	
+	/**
+	 * Takes models as arguments and gets table names, field names and creates the needed join SQL
+	
+	 * @param array $models - List of objects as type ReflectionClass
+	 * @param array $inner_joins
+	 * @param array $wheres
+	 */
+	protected function create_select_statement($model, $related_models, $conditions) {
+	
+		$query_object = new SQLQuery();
+		$query_object->set_type(Query::SELECT);
+	
+		$table = Helpers::get_model_table_name($model);
+		$query_object->add_table($table);
+	
+		$select_columns = array();
+	
+		var_dump($query_object->query);
+		return;
+	
+		$alias_num_count = 1;
+		$this->clean();
+	
+		foreach($models as $model_name) {
+			$alias = 'T' . $alias_num_count;
+			$this->tables[$alias] = Helpers::get_model_table_name($model_name);
+		}
+	
+		foreach($inner_joins as $f1 => $f2) {
+			$this->inner_joins[$f1] = $f2;
+		}
+	
+		var_dump($this->tables);
+	}
+	
+	protected function create_update_statement() {
+	
+	}
+	
+	protected function create_delete_statement() {
+	
+	}
+	
+	protected function create_insert_statement() {
+	
+	}
+	
+	protected function get_objects() {
+	
+		$related_models = array();
+		$columns = array();
+		$wheres = array();
+	
+		$current_model = $model;
+		$current_eval = null; // how we will evaluate the field (=, IN(), NOT IN(), etc)
+	
+		foreach($this->conditions as $condition => $value) {
+	
+			$pieces = explode('__', $condition);
+	
+			foreach($pieces as $field_name) {
+	
+				$current_model_fields = array_keys($current_model->fields);
+	
+				if(!isset($current_model_fields[$field_name]))
+					throw new Exception('model ' . $current_model->getName(). ' has no property ' . $field_name);
+	
+				exit('done');
+				$field = $current_model_fields[$field_name]; // ex: array('ForeignKey', 'model' => 'Post')
+	
+				// Check if the field is a validate Field Class
+				if(Helpers::get_field_type($field) === null)
+					throw new Exception('Unknown field type on model property: ' . $field_name);
+	
+				//if(!in_array($models, $))
+	
+				switch($field) {
+					case fields\ForeignKey:
+						$joins[] = array('table'=>strtolower($field['model']), 'on_table'=> strtolower($current_model->getName()));
+						$current_model = new \ReflectionClass($field['model']); // change to get_reflection_model()
+						$this->reflection_models[$field['model']] = $current_model;
+						break;
+	
+					case fields\ManyToMany:
+						$joins[] = array('table'=>strtolower($field['model']), 'on_table'=> strtolower($current_model->getName()));
+						$current_model = new \ReflectionClass($field['model']); // change to get_reflection_model()
+						$this->reflection_models[$field['model']] = $current_model;
+						break;
+	
+					case fields\IntField:
+						$wheres[] = array('table'=> strtolower($current_model->getName()), 'field'=> $field_name, 'eval' => $current_eval, 'value'=>$value);
+						break;
+	
+					default:
+						var_dump($field);
+						throw new Exception('Field type: ' . $field['type'] . ' is unknown.');
+				}
+			}
+		}
+	}
+	
+	private function clean() {
+		$this->tables = array();
+		$this->inner_joins = array();
+		$this->wheres = array();
+	}
+}
 
 class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 	
@@ -14,8 +129,10 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 	private $objects = null;
 	private $position = 0;
 	
+	private static $builder;
+	
 	public function __construct($model, $conditions) {
-		$this->model = Helpers::get_model_reflection($model);
+		$this->model = IntrospectionModel::get($model);
 		$this->conditions = $conditions;
 	}
 	
@@ -25,7 +142,7 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 	}
 	
 	public function filter($conditions) {
-		$this->conditions = array_merge($this->conditions, $condition);
+		$this->conditions[] = $conditions;
 	}
 	
 	public function query() {
@@ -115,12 +232,14 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 	}
 	
 	
-	private function build_query() { // Change to parse_query()
+	private function get_objects() {
 		
-		$models = array();
+		$related_models = array();
 		$joins = array();
 		$fields = array();
 		$wheres = array();
+		
+		$builder = QueryBuilderFactory::get('sql'); // CHANGE THIS
 		
 		$current_model = $this->model;
 		$current_eval = null; // how we will evaluate the field (=, IN(), NOT IN(), etc)
@@ -131,21 +250,14 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 			
 			foreach($pieces as $field_name) {
 				
-				$model_reflection = Helpers::get_model_reflection($current_model->getName());
-				$current_model_fields = $model_reflection->getDefaultProperties();
+				$current_model_fields = $current_model->fields;
 				
 				if(!isset($current_model_fields[$field_name]))
 					throw new Exception('model ' . $current_model->getName(). ' has no property ' . $field_name);
 				
 				$field = $current_model_fields[$field_name]; // ex: array('ForeignKey', 'model' => 'Post')
 				
-				// Check if the field is a validate Field Class
-				if(Helpers::get_field_type($field) === null)
-					throw new Exception('Unknown field type on model property: ' . $field_name);
-				
-				if(!in_array($models, $))
-				
-				switch($field) {
+				switch($field[0]) {
 					case fields\ForeignKey:
 						$joins[] = array('table'=>strtolower($field['model']), 'on_table'=> strtolower($current_model->getName()));
 						$current_model = new \ReflectionClass($field['model']); // change to get_reflection_model()
@@ -164,7 +276,7 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 						
 					default:
 						var_dump($field);
-						throw new Exception('Field type: ' . $field['type'] . ' is unknown.');
+						throw new \Exception('Field type: ' . $field[0] . ' is unknown.');
 				}
 			}
 		}
@@ -206,12 +318,12 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 	/**
 	 * Called when the QuerySet is read, used or iterated through
 	 */
-	private function get_objects() {
+	private function get_objects2() {
 		
 		if($this->objects !== null)
 			return $this->objects;
 		
-		$db = Jenga::get_db();
+		$db = \Jenga::get_db();
 		$objects = array();
 		
 		try {
@@ -283,5 +395,21 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 		}
 		
 		return \Jenga::$MODEL_FIELDS[$model] = $fields;
+	}
+}
+
+class QueryBuilderFactory {
+	
+	public static function get($model_backend_type) {
+		switch($model_backend_type) {
+			case models\SQL_BACKEND_TYPE:
+				return new SQLQueryBuilder();
+				
+			case models\MONGO_BACKEND_TYPE:
+				return null;
+				
+			default:
+				return new SQLQueryBuilder();
+		}
 	}
 }
