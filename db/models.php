@@ -97,6 +97,7 @@ class IntrospectionModel {
 			$reflection = new \ReflectionClass($model_name);
 			$properties = $reflection->getDefaultProperties();
 			$reflection->fields = array();
+			$reflection->table_name = strtolower($model_name);
 		
 			foreach($properties as $field_name => $field) {
 				$field_class_name = self::get_field_type($field);

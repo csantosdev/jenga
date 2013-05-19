@@ -2,6 +2,7 @@
 namespace Jenga\DB\Fields;
 
 const Field = 'Jenga\\DB\\Fields\\Field';
+const RelatedField = 'Jenga\\DB\Fields\\RelatedField';
 const IntField = 'Jenga\\DB\\Fields\\IntField';
 const PositiveIntField = 'Jenga\\DB\\Fields\\PositiveIntField';
 const CharField = 'Jenga\\DB\\Fields\\CharField';

@@ -243,6 +243,7 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 		
 		$current_model = $this->model;
 		$current_eval = null; // how we will evaluate the field (=, IN(), NOT IN(), etc)
+		$alias_count = 1;
 				
 		foreach($this->conditions as $condition => $value) {
 			
@@ -250,13 +251,40 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 			
 			foreach($pieces as $field_name) {
 				
-				$current_model_fields = $current_model->fields;
+				if(!isset($current_model->fields[$field_name]))
+					throw new \Exception('model ' . $current_model->getName(). ' has no property ' . $field_name);
 				
-				if(!isset($current_model_fields[$field_name]))
-					throw new Exception('model ' . $current_model->getName(). ' has no property ' . $field_name);
+				$field = $current_model->fields[$field_name]; // ex: array('ForeignKey', 'model' => 'Post')
 				
-				$field = $current_model_fields[$field_name]; // ex: array('ForeignKey', 'model' => 'Post')
+				$field_class = IntrospectionModel::get($field[0]);
 				
+				// Related Field? Setup the join
+				if($field_class->isSubclassOf(fields\RelatedField)) {
+					
+					$model = IntrospectionModel::get($field['model']);
+					
+					//TODO: Possibly make this faster
+					$found = false;
+					foreach($related_models as $related) {
+						if($related['model'] == $model->getName()) {
+							$found = true;
+							break;
+						}
+					}
+					
+					if(!$found) {
+						$related_models[] = array(
+							'alias' => 'T'.$alias_count,
+							'model' => $model,
+							'join_model' => $current_model,
+						);
+						$alias_count++;
+					}
+					
+					$current_model = $model;
+				}
+				
+				/*
 				switch($field[0]) {
 					case fields\ForeignKey:
 						$joins[] = array('table'=>strtolower($field['model']), 'on_table'=> strtolower($current_model->getName()));
@@ -278,8 +306,17 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 						var_dump($field);
 						throw new \Exception('Field type: ' . $field[0] . ' is unknown.');
 				}
+				*/
 			}
 		}
+		
+		// Build the query
+		$grouped_related_models = array($related_models); // For now because we are not grouping $related_models yet
+		$query = $builder->create_select_statement($this->model, $grouped_related_models);
+		
+		var_dump($related_models);
+		var_dump($query);
+		exit;
 		
 		$model_fields = $this->model->getDefaultProperties();
 		$_meta = $model_fields['_meta'];

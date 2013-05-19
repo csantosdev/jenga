@@ -4,10 +4,25 @@ use Jenga\DB\Query\QueryBuilder;
 
 class SQLQueryBuilder extends QueryBuilder {
 	
+	private $table_aliases = array();
+	
 	public function __get($name) {
 		
 		if($name == 'query')
 			return $this->build();
+	}
+	
+	public abstract function create_select_statement($model, $grouped_related_models, $wheres=null) {
+		$this->add_table($model->table_name);
+		// INNER JOINS
+		foreach($grouped_related_models as $group) {
+			foreach($group as $related_models) {
+				foreach($related_models as $related) {
+					
+					$this->add_inner_join($join_table, $join_column, $on_table, $on_column);
+				}
+			}
+		}
 	}
 	
 	public function add_table($table, $type=null) {
@@ -39,7 +54,7 @@ class SQLQueryBuilder extends QueryBuilder {
 	}
 	
 	
-	public function build_select() {
+	private function build_select() {
 		
 		$query = sprintf('SELECT * FROM %s', $this->table);
 			
@@ -49,6 +64,10 @@ class SQLQueryBuilder extends QueryBuilder {
 				
 		return $query;
 				
+	}
+	
+	private function get_table_alias($table_name) {
+		
 	}
 	
 }
