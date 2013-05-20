@@ -9,6 +9,7 @@ abstract class QueryBuilder {
 	const DELETE = 'delete';
 
 	protected $table = null;
+	protected $select_columns = array();
 	protected $inner_joins = array();
 	protected $select_columns = array();
 	protected $orders = array();
@@ -19,7 +20,7 @@ abstract class QueryBuilder {
 	//public abstract function create_delete_statement($model);
 
 	public abstract function add_table($table, $type);
-	public abstract function add_inner_join($join_table, $join_column, $on_table, $on_column);
+	public abstract function add_inner_join($join_table, $join_table_alias, $join_column, $on_table, $on_column);
 	public abstract function add_order($table, $column);
 	public abstract function add_select_column($column);
 }

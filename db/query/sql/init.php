@@ -12,14 +12,14 @@ class SQLQueryBuilder extends QueryBuilder {
 			return $this->build();
 	}
 	
-	public abstract function create_select_statement($model, $grouped_related_models, $wheres=null) {
+	public  function create_select_statement($model, $grouped_related_models, $wheres=null) {
 		$this->add_table($model->table_name);
 		// INNER JOINS
 		foreach($grouped_related_models as $group) {
 			foreach($group as $related_models) {
 				foreach($related_models as $related) {
 					
-					$this->add_inner_join($join_table, $join_column, $on_table, $on_column);
+					//$this->add_inner_join($join_table, $join_column, $on_table, $on_column);
 				}
 			}
 		}
@@ -29,8 +29,15 @@ class SQLQueryBuilder extends QueryBuilder {
 		$this->table = $table;
 	}
 	
-	public function add_inner_join($join_table, $join_column, $on_table, $on_column) {
-		$this->inner_joins[] = sprintf('INNER JOIN %s ON ("%s"."%s" = "%s"."%s")', $join_table, $join_column, $on_table, $on_column);
+	public function add_inner_join($join_table, $join_table_alias, $join_column, $on_table, $on_column) {
+		$this->inner_joins[] = sprintf('INNER JOIN %s as %s ON (%s.%s = %s.%s)', $join_table, $join_table_alias, $join_table_alias, $join_column, $on_table, $on_column);
+	}
+	
+	public function add_select_column($table_alias, $column) {
+		if($table_alias != '')
+			$this->select_columns[] = $table_alias . '.' . $column;
+		else
+			$this->select_column[] = $column;
 	}
 	
 	public function add_order($table, $column) {
@@ -54,9 +61,9 @@ class SQLQueryBuilder extends QueryBuilder {
 	}
 	
 	
-	private function build_select() {
+	private function build() {
 		
-		$query = sprintf('SELECT * FROM %s', $this->table);
+		$query = sprintf('SELECT * FROM %s as T1', $this->table);
 			
 		if(!empty($this->inner_joins))
 			foreach($this->inner_joins as $join)

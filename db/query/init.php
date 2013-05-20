@@ -1,5 +1,7 @@
 <?php
 namespace Jenga\DB\Query;
+use Jenga\DB\Models\Builders\SQLModelBuilder;
+
 use Jenga\Helpers;
 use Jenga\DB\Fields as fields;
 use Jenga\DB\Models as models;
@@ -239,7 +241,8 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 		$fields = array();
 		$wheres = array();
 		
-		$builder = QueryBuilderFactory::get('sql'); // CHANGE THIS
+		//$builder = QueryBuilderFactory::get('sql'); // CHANGE THIS
+		$builder = new SQLModelBuilder();
 		
 		$current_model = $this->model;
 		$current_eval = null; // how we will evaluate the field (=, IN(), NOT IN(), etc)
@@ -277,6 +280,7 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 							'alias' => 'T'.$alias_count,
 							'model' => $model,
 							'join_model' => $current_model,
+							'on_column' => $field_name.'_id'
 						);
 						$alias_count++;
 					}
@@ -312,9 +316,8 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 		
 		// Build the query
 		$grouped_related_models = array($related_models); // For now because we are not grouping $related_models yet
-		$query = $builder->create_select_statement($this->model, $grouped_related_models);
+		$query = $builder->build_select($this->model, $grouped_related_models);
 		
-		var_dump($related_models);
 		var_dump($query);
 		exit;
 		
