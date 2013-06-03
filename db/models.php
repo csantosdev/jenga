@@ -104,9 +104,9 @@ class IntrospectionModel {
 					
 				if($field_class_name !== null)
 					$reflection->fields[$field_name] = $field;
-				
-			self::$models[$model_name] = $reflection;
 			}
+			
+			self::$models[$model_name] = $reflection;
 		}
 			
 		return self::$models[$model_name];
