@@ -17,3 +17,6 @@ $JENGA_DATABASES = array(
 		'backend' => JENGA_MYSQL_BACKEND	
 	)		
 );
+
+$_404_HANDLER = null;
+$_500_HANDLER = null;

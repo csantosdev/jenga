@@ -16,6 +16,8 @@ require_once 'db/connections/init.php';
 require_once 'db/connections/mysql/init.php';
 require_once 'db/connections/mongo/init.php';
 
+require_once 'core/urls.php';
+
 require_once 'helpers.php';
 
 class Jenga {
