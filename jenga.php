@@ -7,10 +7,10 @@ require_once 'settings.php';
 
 require_once 'db/fields.php';
 require_once 'db/models.php';
-require_once 'db/query/builder.php';
 require_once 'db/models/builders.php';
+require_once 'db/query/builders/init.php';
+require_once 'db/query/builders/sql.php';
 require_once 'db/query/init.php';
-require_once 'db/query/sql/init.php';
 require_once 'db/managers.php';
 require_once 'db/connections/init.php';
 require_once 'db/connections/mysql/init.php';

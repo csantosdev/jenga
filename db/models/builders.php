@@ -1,6 +1,6 @@
 <?php
-namespace Jenga\DB\Models\Builders;
-use Jenga\DB\Query\SQL\SQLQueryBuilder;
+namespace Jenga\DB\Models;
+use Jenga\DB\Query\Builders\SQLQueryBuilder;
 
 abstract class ModelBuilder {
 	
@@ -34,6 +34,11 @@ class SQLModelBuilder extends ModelBuilder {
 			}
 			
 		}
+		
+		foreach($wheres as $where) {
+			$this->query_builder->	
+		}
+		
 	return $this->query_builder->query;
 	}
 }

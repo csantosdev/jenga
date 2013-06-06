@@ -29,7 +29,7 @@ class Comment extends Model {
 class Post extends Model {
 	
 	public $blog = array(f\ForeignKey, 'model'=>'Blog');
-	public $title = f\TextField;
+	public $title = array(f\TextField);
 	public $categories = array(f\ManyToMany, 'model'=>'Category');
 }
 

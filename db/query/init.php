@@ -1,6 +1,6 @@
 <?php
 namespace Jenga\DB\Query;
-use Jenga\DB\Models\Builders\SQLModelBuilder;
+use Jenga\DB\Models\SQLModelBuilder;
 
 use Jenga\Helpers;
 use Jenga\DB\Fields as fields;
@@ -236,6 +236,9 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 	
 	private function get_objects() {
 		
+		if($this->objects != null)
+			return $this->objects;
+		
 		$related_models = array();
 		$joins = array();
 		$fields = array();
@@ -286,6 +289,12 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 					}
 					
 					$current_model = $model;
+				
+				} else if($field_class->getName() == fields\TextField || $field_class->isSubclassOf(fields\TextField)) {
+					//$wheres[] = 
+					
+				} else {
+					exit;
 				}
 				
 				/*
