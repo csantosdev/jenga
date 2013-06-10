@@ -23,5 +23,5 @@ abstract class QueryBuilder {
 	public abstract function add_inner_join($join_table, $join_table_alias, $join_column, $on_table, $on_column);
 	public abstract function add_order($table, $column);
 	public abstract function add_select_column($table, $column);
-	public abstract function add_where($table, $column);
+	public abstract function add_where($table, $column, $conditional_operator, $value);
 }

@@ -1,5 +1,7 @@
 <?php
 namespace Jenga\DB\Query;
+use Jenga\DB\Models\MongoModelBuilder;
+
 use Jenga\DB\Models\SQLModelBuilder;
 
 use Jenga\Helpers;
@@ -7,6 +9,7 @@ use Jenga\DB\Fields as fields;
 use Jenga\DB\Models as models;
 use Jenga\DB\Models\IntrospectionModel;
 use Jenga\DB\Query\SQL\SQLQueryBuilder;
+use Jenga\DB\Query\Query;
 
 abstract class BaseQuerySet {
 
@@ -244,13 +247,18 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 		$fields = array();
 		$wheres = array();
 		
-		//$builder = QueryBuilderFactory::get('sql'); // CHANGE THIS
-		$builder = new SQLModelBuilder();
+		$backend_type = $this->model->_meta['properties']['backend_type'];
+		$builder = ModelBuilderFactory::get($backend_type);
 		
 		$current_model = $this->model;
 		$current_eval = null; // how we will evaluate the field (=, IN(), NOT IN(), etc)
 		$alias_count = 1;
+		
+		// ONLY SUPPORTS ONE .filter() USE
+		$query_object = new Query();
+		$query_object->parse($this->model, $this->conditions);
 				
+		/**
 		foreach($this->conditions as $condition => $value) {
 			
 			$pieces = explode('__', $condition);
@@ -319,16 +327,14 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 						var_dump($field);
 						throw new \Exception('Field type: ' . $field[0] . ' is unknown.');
 				}
-				*/
 			}
-		}
+		} */
 		
 		// Build the query
-		$grouped_related_models = array($related_models); // For now because we are not grouping $related_models yet
-		$query = $builder->build_select($this->model, $grouped_related_models);
+		$query = $builder->build_select($this->model, array($query_object));
 		
 		var_dump($query);
-		exit;
+		return;
 		
 		$model_fields = $this->model->getDefaultProperties();
 		$_meta = $model_fields['_meta'];
@@ -447,18 +453,19 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 	}
 }
 
-class QueryBuilderFactory {
+// MOVE THIS
+class ModelBuilderFactory {
 	
 	public static function get($model_backend_type) {
 		switch($model_backend_type) {
 			case models\SQL_BACKEND_TYPE:
-				return new SQLQueryBuilder();
+				return new SQLModelBuilder();
 				
 			case models\MONGO_BACKEND_TYPE:
-				return null;
+				return new MongoModelBuilder();
 				
 			default:
-				return new SQLQueryBuilder();
+				return new SQLModelBuilder();
 		}
 	}
 }

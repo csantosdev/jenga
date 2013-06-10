@@ -7,7 +7,7 @@
       <Entity type="Class">
         <Name>Model</Name>
         <Access>Public</Access>
-        <Location left="64" top="23" />
+        <Location left="910" top="145" />
         <Size width="172" height="105" />
         <Collapsed>False</Collapsed>
         <Member type="Method">public static Manager objects()</Member>
@@ -16,7 +16,7 @@
       <Entity type="Class">
         <Name>Manager</Name>
         <Access>Public</Access>
-        <Location left="297" top="38" />
+        <Location left="910" top="20" />
         <Size width="176" height="111" />
         <Collapsed>False</Collapsed>
         <Modifier>None</Modifier>
@@ -24,7 +24,7 @@
       <Entity type="Class">
         <Name>QuerySet</Name>
         <Access>Public</Access>
-        <Location left="626" top="260" />
+        <Location left="24" top="226" />
         <Size width="212" height="179" />
         <Collapsed>False</Collapsed>
         <Member type="Method">public Array filter()</Member>
@@ -37,7 +37,7 @@
       <Entity type="Class">
         <Name>Select</Name>
         <Access>Public</Access>
-        <Location left="707" top="571" />
+        <Location left="852" top="746" />
         <Size width="164" height="104" />
         <Collapsed>False</Collapsed>
         <Modifier>None</Modifier>
@@ -45,7 +45,7 @@
       <Entity type="Class">
         <Name>QueryBuilder</Name>
         <Access>Public</Access>
-        <Location left="345" top="193" />
+        <Location left="434" top="393" />
         <Size width="193" height="230" />
         <Collapsed>False</Collapsed>
         <Member type="Field">private Arrray tables</Member>
@@ -62,7 +62,7 @@
       <Entity type="Class">
         <Name>MongoQueryBuilder</Name>
         <Access>Public</Access>
-        <Location left="182" top="484" />
+        <Location left="280" top="676" />
         <Size width="176" height="162" />
         <Collapsed>False</Collapsed>
         <Member type="Method">public void add_table()</Member>
@@ -73,7 +73,7 @@
       <Entity type="Class">
         <Name>SQLQueryBuilder</Name>
         <Access>Public</Access>
-        <Location left="502" top="484" />
+        <Location left="624" top="645" />
         <Size width="173" height="136" />
         <Collapsed>False</Collapsed>
         <Modifier>None</Modifier>
@@ -81,10 +81,77 @@
       <Entity type="Class">
         <Name>BaseQuerySet</Name>
         <Access>Public</Access>
-        <Location left="554" top="38" />
+        <Location left="24" top="19" />
         <Size width="364" height="158" />
         <Collapsed>False</Collapsed>
         <Member type="Method">public Array parse_conditions(Model model, Array related_models)</Member>
+        <Modifier>None</Modifier>
+      </Entity>
+      <Entity type="Class">
+        <Name>ModelBuilder</Name>
+        <Access>Public</Access>
+        <Location left="306" top="207" />
+        <Size width="183" height="116" />
+        <Collapsed>False</Collapsed>
+        <Member type="Field">protected QueryBuilder query_builder</Member>
+        <Modifier>None</Modifier>
+      </Entity>
+      <Entity type="Comment">
+        <Text>QuerySet parses the ORM query string code. ex: filter('blog__id' =&gt; 2)</Text>
+        <Location left="24" top="483" />
+        <Size width="160" height="75" />
+      </Entity>
+      <Entity type="Class">
+        <Name>Query</Name>
+        <Access>Public</Access>
+        <Location left="434" top="53" />
+        <Size width="193" height="145" />
+        <Collapsed>False</Collapsed>
+        <Member type="Field">protected Array conditional_operators</Member>
+        <Member type="Field">public Array related_models</Member>
+        <Member type="Field">public Array wheres</Member>
+        <Member type="Method">public Object parse()</Member>
+        <Modifier>None</Modifier>
+      </Entity>
+      <Entity type="Class">
+        <Name>QuerySegment</Name>
+        <Access>Public</Access>
+        <Location left="648" top="53" />
+        <Size width="188" height="111" />
+        <Collapsed>False</Collapsed>
+        <Member type="Field">private int newField</Member>
+        <Modifier>None</Modifier>
+      </Entity>
+      <Entity type="Class">
+        <Name>SelectQuerySegment</Name>
+        <Access>Public</Access>
+        <Location left="587" top="207" />
+        <Size width="162" height="99" />
+        <Collapsed>True</Collapsed>
+        <Modifier>None</Modifier>
+      </Entity>
+      <Entity type="Class">
+        <Name>JoinQuerySegment</Name>
+        <Access>Public</Access>
+        <Location left="607" top="264" />
+        <Size width="178" height="77" />
+        <Collapsed>True</Collapsed>
+        <Modifier>None</Modifier>
+      </Entity>
+      <Entity type="Class">
+        <Name>InnerJoinQuerySegment</Name>
+        <Access>Public</Access>
+        <Location left="633" top="324" />
+        <Size width="215" height="77" />
+        <Collapsed>True</Collapsed>
+        <Modifier>None</Modifier>
+      </Entity>
+      <Entity type="Class">
+        <Name>WhereQuerySegment</Name>
+        <Access>Public</Access>
+        <Location left="661" top="382" />
+        <Size width="187" height="77" />
+        <Collapsed>True</Collapsed>
         <Modifier>None</Modifier>
       </Entity>
     </Entities>
@@ -93,12 +160,12 @@
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
-          <X>362</X>
-          <Y>453</Y>
+          <X>460</X>
+          <Y>645</Y>
         </BendPoint>
         <BendPoint relativeToStartShape="False">
-          <X>442</X>
-          <Y>448</Y>
+          <X>531</X>
+          <Y>648</Y>
         </BendPoint>
       </Relationship>
       <Relationship type="Generalization" first="6" second="4">
@@ -106,11 +173,13 @@
         <EndOrientation>Vertical</EndOrientation>
       </Relationship>
       <Relationship type="Association" first="6" second="3">
-        <StartOrientation>Vertical</StartOrientation>
+        <Label>
+        </Label>
+        <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
-          <X>595</X>
-          <Y>645</Y>
+          <X>864</X>
+          <Y>718</Y>
         </BendPoint>
         <Direction>Unidirectional</Direction>
         <AssociationType>Composition</AssociationType>
@@ -119,9 +188,37 @@
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
-          <X>737</X>
-          <Y>234</Y>
+          <X>135</X>
+          <Y>200</Y>
         </BendPoint>
+      </Relationship>
+      <Relationship type="Association" first="2" second="8">
+        <Label>
+        </Label>
+        <StartOrientation>Horizontal</StartOrientation>
+        <EndOrientation>Horizontal</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>262</X>
+          <Y>302</Y>
+        </BendPoint>
+        <Direction>Unidirectional</Direction>
+        <AssociationType>Composition</AssociationType>
+      </Relationship>
+      <Relationship type="Association" first="8" second="4">
+        <Label>
+        </Label>
+        <StartOrientation>Vertical</StartOrientation>
+        <EndOrientation>Vertical</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>400</X>
+          <Y>349</Y>
+        </BendPoint>
+        <BendPoint relativeToStartShape="False">
+          <X>542</X>
+          <Y>368</Y>
+        </BendPoint>
+        <Direction>Unidirectional</Direction>
+        <AssociationType>Composition</AssociationType>
       </Relationship>
     </Relationships>
   </ProjectItem>

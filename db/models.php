@@ -49,10 +49,8 @@ class Model
 	}
 	
 	public static function objects() {
-		
-		if(!isset(self::$objects))
-			self::$objects = new BasicModelManager(get_called_class());
-		return self::$objects;
+		// FIND BETTER WAY TO DO THIS
+		return new BasicModelManager(get_called_class());
 	}
 	
 	public function get_table_name() {
@@ -87,6 +85,12 @@ class Model
 }
 
 
+class MongoModel extends Model {
+	public $id = array(f\TextField);
+	public $backend_type = MONGO_BACKEND_TYPE;
+}
+
+
 class IntrospectionModel {
 	
 	private static $models = array();
@@ -98,7 +102,8 @@ class IntrospectionModel {
 			$properties = $reflection->getDefaultProperties();
 			$reflection->fields = array();
 			$reflection->table_name = strtolower($model_name);
-		
+			$reflection->_meta['properties'] = $properties;
+			
 			foreach($properties as $field_name => $field) {
 				$field_class_name = self::get_field_type($field);
 					

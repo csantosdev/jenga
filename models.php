@@ -1,5 +1,6 @@
 <?php
 use Jenga\DB\Models\Model;
+use Jenga\DB\Models\MongoModel;
 use Jenga\DB\Fields as f;
 
 /**
@@ -49,4 +50,16 @@ class Site extends Model {
 	public $description = array(f\TextField);
 	
 	public $has_rendered = false;
+}
+
+class MongoPost extends MongoModel {
+	
+	public $blog = array(f\ForeignKey, 'model'=>'MongoBlog');
+	public $title = array(f\TextField);
+	public $categories = array(f\ManyToMany, 'model'=>'Category');
+}
+
+class MongoBlog extends MongoModel {
+	
+	public $name = array(f\CharField);
 }
