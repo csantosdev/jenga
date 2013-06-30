@@ -1,6 +1,9 @@
 <?php
 namespace Jenga\DB\Models;
 use Jenga\DB\Query\Builders\SQLQueryBuilder;
+use Jenga\DB\Query\Builders\MongoQueryBuilder;
+use Jenga\DB\Fields as f;
+use Jenga\DB\Connections\ConnectionFactory;
 
 abstract class ModelBuilder {
 	
@@ -58,6 +61,19 @@ class MongoModelBuilder extends ModelBuilder {
 	public function build_select($model, $query_objects) {
 		$this->query_builder->add_table($model->table_name);
 		$collection_data = array();
+		
+		$query = $query_objects[0];
+		var_dump($query);
+		$main_query = array();
+		
+		foreach($query->wheres as $where) {
+			$ids = $this->build_where($where, $is_dependent=true);
+			echo 'MAIN/'.$where->model->getName().': ' ;
+			$field_name = strtolower($where->model->getName()) . '_id';
+			$main_query[$field_name] = array('$in' => $ids);
+		}
+		
+		/**
 		foreach($query_objects as $query_object) {
 			// INNER JOINS, NOT QUITE
 			foreach($query_object->related_models as $related_model) {
@@ -82,7 +98,6 @@ class MongoModelBuilder extends ModelBuilder {
 					$on_table = $table_aliases[$related['join_model']->table_name];
 					$on_column = $related['on_column'];
 					$this->query_builder->add_inner_join($join_table,$join_table_alias, $join_column, $on_table, $on_column);
-					*/
 				}
 			}
 			// WHERES
@@ -91,18 +106,91 @@ class MongoModelBuilder extends ModelBuilder {
 					$this->query_builder->add_where($table_aliases[strtolower($where['model_name'])], $where['field_name'], $where['conditional_operator'], $where['value']);
 				}
 			}
+			
+		}*/
+		
+		$db = ConnectionFactory::get($model->_meta['db_config']);
+		$collection = new \MongoCollection($db, $model->table_name);
+		
+		echo 'QUERYING MAIN QUERY: ';
+		var_dump($main_query);
+		$cursor = $collection->find($main_query);
+		
+		$models = [];
+		
+		// Put data into object model
+		foreach($cursor as $doc) {
+			echo '<br/>Pulled:';
+			var_dump($doc);
+			
+			$m = $model->newInstance();
+			
+			foreach($model->fields as $column_name => $field) {
+				var_dump($field);
+				
+				if($column_name == 'id') {
+					$m->id = $doc['_id'];
+					continue;
+				}
+					
+				$field = new \ReflectionClass($field[0]);
+				
+				if($field->getNamespaceName() == f\CharField || $field->isSubclassOf(f\CharField)) {
+					$m->$column_name = (string)$doc[$column_name];
+					
+				} else if($field->getNamespaceName() == f\NumberField || $field->isSubclassOf(f\NumberField)) {
+					$m->$column_name = $doc[$column_name];
+				}
+			}
+			
+			$models[] = $m;
 		}
 		
-		$m = new \MongoClient();
-		$db = $m->selectDB('test');
-		$collection = $db->{$model->getName()};
+		return $models;
+	}
+	
+	private function build_where($where, $is_dependent=false) {
 		
-		foreach($collections as $collection)
+		$query = array();
+		echo '<br/>WHERE:';
+		var_dump($where);
 		
-		/*
-		 ['mongoblog' => ['name' => 'iCandy Clothing]];
-		 ['mongopost' => 
-		*/
-		return $this->query_builder->query;
+		foreach($where->dependencies as $dependency) {
+			$ids = $this->build_where($dependency, true);
+			
+			if(empty($ids))
+				return [];
+			
+			$field_name = strtolower($dependency->model->getName()) . '_id';
+			
+			if(count($ids) > 1)
+				$query[$field_name] = array('$in' => $ids);
+			else
+				$query[$field_name] = $ids[0];
+		}
+		
+		foreach($where->wheres as $field => $value) {
+			// In here we would do checks for operation conditional checks and
+			// add in $in or $nin, etc.
+		}
+		
+		if(!empty($where->wheres)) {
+			$query = array_merge($query, $where->wheres);
+			echo 'Sub-Query on '.$where->model->getName().':';
+			var_dump($query);	
+			
+			$m = new \MongoClient();
+			$db = $m->selectDB('test');
+			$collection = new \MongoCollection($db, $where->model->table_name);
+			
+			$cursor = $collection->find($query, array('_id'));
+			$ids = array();
+			foreach($cursor as $doc)
+				$ids[] = $doc['_id'];
+			
+			echo "<br/>Returning IDs:";
+			var_dump($ids);
+			return $ids;
+		}
 	}
 }

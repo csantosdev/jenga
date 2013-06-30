@@ -46,7 +46,7 @@ class Helpers {
 		try {
 			$reflection = self::get_model_reflection($class_name);
 			
-			if($reflection->isSubclassOf(models\Field))
+			if($reflection->isSubclassOf(Fields\Field))
 				return $class_name;
 			else
 				return null;

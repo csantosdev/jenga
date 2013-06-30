@@ -1,15 +1,14 @@
 <?php
 namespace Jenga\DB\Query;
+use Jenga\DB\Connections\Connection;
 use Jenga\DB\Models\MongoModelBuilder;
-
 use Jenga\DB\Models\SQLModelBuilder;
-
-use Jenga\Helpers;
 use Jenga\DB\Fields as fields;
 use Jenga\DB\Models as models;
 use Jenga\DB\Models\IntrospectionModel;
 use Jenga\DB\Query\SQL\SQLQueryBuilder;
 use Jenga\DB\Query\Query;
+use Jenga\Helpers;
 
 abstract class BaseQuerySet {
 
@@ -146,8 +145,8 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 		return $objects[0]->$name;
 	}
 	
-	public function filter($conditions) {
-		$this->conditions[] = $conditions;
+	public function filter() {
+		$this->conditions[] = func_num_args();
 	}
 	
 	public function query() {
@@ -246,8 +245,7 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 		$joins = array();
 		$fields = array();
 		$wheres = array();
-		
-		$backend_type = $this->model->_meta['properties']['backend_type'];
+		$backend_type = $this->model->_meta['db_config'];
 		$builder = ModelBuilderFactory::get($backend_type);
 		
 		$current_model = $this->model;
@@ -331,10 +329,11 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 		} */
 		
 		// Build the query
-		$query = $builder->build_select($this->model, array($query_object));
+		$models = $builder->build_select($this->model, array($query_object));
 		
-		var_dump($query);
-		return;
+		echo "<br/>MODELS:";
+		var_dump($models);
+		return $this->objects = $models;
 		
 		$model_fields = $this->model->getDefaultProperties();
 		$_meta = $model_fields['_meta'];
@@ -458,10 +457,10 @@ class ModelBuilderFactory {
 	
 	public static function get($model_backend_type) {
 		switch($model_backend_type) {
-			case models\SQL_BACKEND_TYPE:
+			case Connection::SQL_BACKEND_TYPE:
 				return new SQLModelBuilder();
 				
-			case models\MONGO_BACKEND_TYPE:
+			case Connection::MONGO_BACKEND_TYPE:
 				return new MongoModelBuilder();
 				
 			default:

@@ -33,7 +33,7 @@ class MongoQueryBuilder extends QueryBuilder {
 	}
 	
 	public function add_inner_join($join_table, $join_table_alias, $join_column, $on_table, $on_column) {
-		$this->inner_joins[$join_table] = array($join_column => $);
+		//$this->inner_joins[$join_table] = array($join_column => $);
 	}
 	
 	public function add_select_column($table, $column) {
@@ -44,12 +44,7 @@ class MongoQueryBuilder extends QueryBuilder {
 	}
 	
 	public function add_where($table, $column, $conditional_operator, $value) {
-		$this->wheres[] = array(
-			'table' => $table,
-			'column' => $column,
-			'conditional_operator' => $conditional_operator,
-			'value' => $value
-		);
+		
 	}
 	
 	public function add_order($table, $column) {

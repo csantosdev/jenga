@@ -36,7 +36,7 @@ class Post extends Model {
 
 class Blog extends Model {
 	
-	public $name = 'CharField';
+	public $name = array(f\TextField);
 }
 
 class Category extends Model {
@@ -44,10 +44,13 @@ class Category extends Model {
 	public $name = 'CharField';
 }
 
-class Site extends Model {
+class Site extends MongoModel {
 	
 	public $name = array(f\CharField, 'default'=>'iCandy Clothing');
 	public $description = array(f\TextField);
+	public $active = array(f\TextField);
+	public $_meta = [
+		'db_config' => 'mongo'];
 	
 	public $has_rendered = false;
 }
@@ -57,9 +60,14 @@ class MongoPost extends MongoModel {
 	public $blog = array(f\ForeignKey, 'model'=>'MongoBlog');
 	public $title = array(f\TextField);
 	public $categories = array(f\ManyToMany, 'model'=>'Category');
+	public $_meta = [
+		'db_config' => 'mongo'];
 }
 
 class MongoBlog extends MongoModel {
 	
 	public $name = array(f\CharField);
+	public $site = array(f\ForeignKey, 'model' => 'Site');
+	public $_meta = [
+		'db_config' => 'mongo'];
 }

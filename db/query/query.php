@@ -31,6 +31,7 @@ class Query {
 			$pieces = explode(self::DOT_OPERATOR, $condition);
 			$conditional_operator = null; // default is equals
 			$current_model = $main_model;
+			$current_where = null;
 			
 			if(strstr($condition, ' ') !== false) {
 				if($operator = $this->find_operator($condition, array(self::LT, self::LTE, self::GT, self::GTE, self::NE)))
@@ -42,7 +43,7 @@ class Query {
 			}
 				
 			foreach($pieces as $field_name) {
-		
+				
 				if(!isset($current_model->fields[$field_name]))
 					throw new \Exception('model ' . $current_model->getName(). ' has no property ' . $field_name);
 		
@@ -54,6 +55,7 @@ class Query {
 						
 					$model = IntrospectionModel::get($field['model']);
 						
+					/** SQL SHIT 
 					if(!isset($this->related_models[$model->getName()])) {
 						$this->related_models[$model->getName()] = array(
 							'model' => $model,
@@ -61,18 +63,39 @@ class Query {
 							'on_column' => $field_name.'_id'
 						);
 					}
+					*/
+					
+					$where_statement = $this->get_where($model);
+					
+					if($where_statement == null)
+						$where_statement = new Where($model);
+					
+					if($current_where != null)
+						$current_where->dependencies[] = $where_statement;
+					else {
+						/** For now to prevent duplicate $models, we store by key **/
+						$key = $where_statement->model->getName();
+						if(!array_key_exists($key, $this->wheres))
+							$this->wheres[$key] = $where_statement;
+					}
 
 					$current_model = $model;
+					$current_where = $where_statement;
 		
-				} else if($field_class->getName() == f\TextField || $field_class->isSubclassOf(f\TextField)) {
+				} else if($field_class->getName() == f\CharField || $field_class->isSubclassOf(f\CharField)) {
+				
+					/** SQL SHIT
 					$this->wheres[] = array(
 						'model_name' => $current_model->getName(),
 						'field_name' => $field_name,
 						'conditional_operator' => $conditional_operator,
 						'value' => $value
 					);
+					*/
+					$current_where->wheres[$field_name] = $value;
 						
 				} else {
+					echo "NOTHING";
 					continue;
 				}
 			}
@@ -84,5 +107,23 @@ class Query {
 			if(strstr($condition, $operator) !== false)
 				return $operator;
 		return null;
+	}
+	
+	private function get_where($model) {
+		foreach($this->wheres as $where) {
+			if($where->model == $model)
+				return $where;
+		}
+		return null;
+	}
+}
+
+class Where {
+	public $model = null;
+	public $dependencies = array();
+	public $wheres = array();
+	
+	public function __construct($model) {
+		$this->model = $model;
 	}
 }

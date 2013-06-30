@@ -7,18 +7,21 @@
       <Entity type="Class">
         <Name>Model</Name>
         <Access>Public</Access>
-        <Location left="910" top="145" />
+        <Location left="876" top="53" />
         <Size width="172" height="105" />
         <Collapsed>False</Collapsed>
         <Member type="Method">public static Manager objects()</Member>
         <Modifier>None</Modifier>
       </Entity>
       <Entity type="Class">
-        <Name>Manager</Name>
+        <Name>ModelManager</Name>
         <Access>Public</Access>
-        <Location left="910" top="20" />
-        <Size width="176" height="111" />
+        <Location left="876" top="171" />
+        <Size width="172" height="128" />
         <Collapsed>False</Collapsed>
+        <Member type="Method">public bool save()</Member>
+        <Member type="Method">public QuerySet filter()</Member>
+        <Member type="Method">public QuerySet get()</Member>
         <Modifier>None</Modifier>
       </Entity>
       <Entity type="Class">
@@ -154,6 +157,22 @@
         <Collapsed>True</Collapsed>
         <Modifier>None</Modifier>
       </Entity>
+      <Entity type="Class">
+        <Name>MongoModelManager</Name>
+        <Access>Public</Access>
+        <Location left="1101" top="159" />
+        <Size width="162" height="216" />
+        <Collapsed>True</Collapsed>
+        <Modifier>None</Modifier>
+      </Entity>
+      <Entity type="Class">
+        <Name>SQLModelManager</Name>
+        <Access>Public</Access>
+        <Location left="1069" top="288" />
+        <Size width="162" height="216" />
+        <Collapsed>True</Collapsed>
+        <Modifier>None</Modifier>
+      </Entity>
     </Entities>
     <Relationships>
       <Relationship type="Generalization" first="5" second="4">
@@ -173,8 +192,6 @@
         <EndOrientation>Vertical</EndOrientation>
       </Relationship>
       <Relationship type="Association" first="6" second="3">
-        <Label>
-        </Label>
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
@@ -193,8 +210,6 @@
         </BendPoint>
       </Relationship>
       <Relationship type="Association" first="2" second="8">
-        <Label>
-        </Label>
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="True">
@@ -205,8 +220,6 @@
         <AssociationType>Composition</AssociationType>
       </Relationship>
       <Relationship type="Association" first="8" second="4">
-        <Label>
-        </Label>
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
@@ -217,6 +230,22 @@
           <X>542</X>
           <Y>368</Y>
         </BendPoint>
+        <Direction>Unidirectional</Direction>
+        <AssociationType>Composition</AssociationType>
+      </Relationship>
+      <Relationship type="Generalization" first="16" second="1">
+        <StartOrientation>Vertical</StartOrientation>
+        <EndOrientation>Horizontal</EndOrientation>
+      </Relationship>
+      <Relationship type="Generalization" first="17" second="1">
+        <StartOrientation>Vertical</StartOrientation>
+        <EndOrientation>Horizontal</EndOrientation>
+      </Relationship>
+      <Relationship type="Association" first="1" second="6">
+        <Label>
+        </Label>
+        <StartOrientation>Vertical</StartOrientation>
+        <EndOrientation>Vertical</EndOrientation>
         <Direction>Unidirectional</Direction>
         <AssociationType>Composition</AssociationType>
       </Relationship>

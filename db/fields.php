@@ -1,14 +1,16 @@
 <?php
 namespace Jenga\DB\Fields;
 
-const Field = 'Jenga\\DB\\Fields\\Field';
-const RelatedField = 'Jenga\\DB\Fields\\RelatedField';
-const IntField = 'Jenga\\DB\\Fields\\IntField';
-const PositiveIntField = 'Jenga\\DB\\Fields\\PositiveIntField';
-const CharField = 'Jenga\\DB\\Fields\\CharField';
-const TextField = 'Jenga\\DB\\Fields\\TextField';
-const ForeignKey = 'Jenga\\DB\\Fields\\ForeignKey';
-const ManyToMany = 'Jenga\\DB\\Fields\\ManyToMany';
+const Field = Field::class;
+const RelatedField = RelatedField::class;
+const NumberField = NumberField::class;
+const IntField = IntField::class;
+const PositiveIntField = PositiveIntField::class;
+const CharField = CharField::class;
+const TextField = TextField::class;
+const BooleanField = BooleanField::class;
+const ForeignKey = ForeignKey::class;
+const ManyToMany = ManyToMany::class;
 
 class Field {
 	
@@ -99,7 +101,7 @@ class CharField extends Field {
 	}
 }
 
-class TextField extends Field {
+class TextField extends CharField {
 
 	public function __construct($args) {
 		$this->properties = $args;

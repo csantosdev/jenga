@@ -11,6 +11,7 @@ require_once 'db/models/builders.php';
 require_once 'db/query/query.php';
 require_once 'db/query/builders/init.php';
 require_once 'db/query/builders/sql.php';
+require_once 'db/query/builders/mongo.php';
 require_once 'db/query/init.php';
 require_once 'db/managers.php';
 require_once 'db/connections/init.php';
@@ -20,6 +21,8 @@ require_once 'db/connections/mongo/init.php';
 require_once 'core/urls.php';
 
 require_once 'helpers.php';
+
+require_once 'settings2.php';
 
 class Jenga {
 	

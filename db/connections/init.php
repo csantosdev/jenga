@@ -1,8 +1,13 @@
 <?php
 namespace Jenga\DB\Connections;
 use Jenga\Helpers;
+use Jenga\Settings;
 
 abstract class Connection {
+	
+	
+	const SQL_BACKEND_TYPE = 'sql';
+	const MONGO_BACKEND_TYPE = 'mongo';
 	
 	const SQL_ADD_TABLE = 'CREATE TABLE %s (%s int(%d) %s %s, PRIMARY KEY (%s)) ENGINE=%s DEFAULT CHARSET=%s AUTO_INCREMENT=1 ;';
 	const SQL_ALTER_TABLE = 'ALTER TABLE %s ';
@@ -138,4 +143,51 @@ class PDO extends Connection {
 	}
 	
 	protected function get_resource() {}
+}
+
+class ConnectionTypeFactory {
+	
+	public static function get($db_config) {
+		
+		if(!isset(Settings::$DATABASES[$db_config]))
+			throw new \Exception('There no database configuration named ' . $db_config);
+			
+		return Settings::$DATABASES[$db_config];
+	}
+}
+
+class ConnectionFactory {
+	
+	private static $connections = [];
+	
+	public static function get($db_backend_config_name) {
+		
+		if(isset(self::$connections[$db_backend_config_name]))
+			return self::$connections[$db_backend_config_name];
+			
+		if(!isset(Settings::$DATABASES[$db_backend_config_name]))
+			throw new \Exception('There no database configuration named ' . $db_backend_config_name . ' in your settings file.');
+		
+		$config = Settings::$DATABASES[$db_backend_config_name];
+		
+		switch($config['type']) {
+			case Connection::SQL_BACKEND_TYPE:
+				$connection = new PDO();
+				break;
+				
+			case Connection::MONGO_BACKEND_TYPE:
+				$str = sprintf('mongodb://%s:%d',$config['host'], $config['port']);
+				echo $str;
+				$options = ['username' => $config['user'], 'password' => $config['pass'], 'db' => $config['name']];
+				$client = new \MongoClient($str, $options);
+				$connection = $client->selectDB($config['name']);
+				break;
+				
+			default:
+				throw new \Exception('There is no database connection type: ' . $config['type']);
+				break;
+		}
+		
+		return self::$connections[$db_backend_config_name] = $connection;
+	}
 }
