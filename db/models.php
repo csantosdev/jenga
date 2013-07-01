@@ -43,6 +43,7 @@ class Model {
 					
 			else if($field->getName() == f\NumberField || $field->isSubclassOf(f\NumberField))
 				$this->$field_name = null;
+			
 		}
 		
 		$backend_config = ConnectionTypeFactory::get($this->_meta['db_config']);

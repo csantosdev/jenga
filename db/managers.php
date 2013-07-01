@@ -1,8 +1,9 @@
 <?php
 namespace Jenga\DB\Managers;
+use Jenga\DB\Models\IntrospectionModel;
 use Jenga\DB\Connections\ConnectionFactory;
-
 use Jenga\DB\Query\QuerySet;
+use Jenga\DB\Fields as f;
 
 class BasicModelManager {
 	
@@ -45,6 +46,32 @@ abstract class ModelManager {
 	}
 	
 	abstract function save($model);
+	
+	protected function validate($model) {
+		
+		$class_name = get_class($model);
+		$reflection_model = IntrospectionModel::get($class_name);
+		
+		foreach($reflection_model->fields as $field_name => $field) {
+			$reflection_field = new \ReflectionClass($field[0]); //TODO: DO THIS A BETTER WAY
+			
+			if(!$reflection_field->isSubclassOf(f\Field))
+				continue;
+			
+			// NumberFields
+			if($reflection_field->isSubclassOf(f\NumberField)) {
+				$value = $model->$field_name;
+				
+				if($reflection_field->getName() == f\IntField) {
+					if(!is_int($value))
+						throw new Exception($model->$field_name . ' is not of type int');
+				} else if($reflection_field->getName() == f\FloatField) {
+					if(!is_float($value))
+						throw new Exception($value . ' is not of type float');
+				}
+			} 
+		}
+	}
 }
 
 class MongoModelManager extends ModelManager {
@@ -52,8 +79,23 @@ class MongoModelManager extends ModelManager {
 	public function save($model) {
 		
 		$db = ConnectionFactory::get($model->_meta['db_config']);
-		echo "<br/>[Got Connection]";
-		var_dump($db);
+		$collection = $db->selectCollection($model->get_table_name());
+		$this->validate($model); // Throws Exception
+		
+		$reflection_model = IntrospectionModel::get(get_class($model));
+		$doc = [];
+		
+		foreach($reflection_model->fields as $field_name => $field) {
+			if($field[0] == f\ForeignKey) {
+				$fk_id_field_name = $field_name . '_id';
+				//if(!isset($model->$fk_id_field_name))
+					//$model->
+			}
+			$doc[$field_name] = $model->$field_name;
+		}
+		
+		$collection->save($doc);
+		echo "saved";
 	}
 }
 

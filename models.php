@@ -48,7 +48,7 @@ class Site extends MongoModel {
 	
 	public $name = array(f\CharField, 'default'=>'iCandy Clothing');
 	public $description = array(f\TextField);
-	public $active = array(f\TextField);
+	public $active = array(f\BooleanField, 'default' => true);
 	public $_meta = [
 		'db_config' => 'mongo'];
 	

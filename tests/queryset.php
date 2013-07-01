@@ -14,3 +14,5 @@ $mongo_posts = MongoPost::objects()->filter(
 	['blog.name' => 'iCandy Clothing', 'blog.site.active' => true]
 );
 echo "Mongo Posts:" . count($mongo_posts);
+echo "<br/>Mongo Post var_dump";
+var_dump($mongo_posts);

@@ -69,7 +69,7 @@ class MongoModelBuilder extends ModelBuilder {
 		foreach($query->wheres as $where) {
 			$ids = $this->build_where($where, $is_dependent=true);
 			echo 'MAIN/'.$where->model->getName().': ' ;
-			$field_name = strtolower($where->model->getName()) . '_id';
+			$field_name = $where->field . '_id';
 			$main_query[$field_name] = array('$in' => $ids);
 		}
 		
@@ -127,6 +127,7 @@ class MongoModelBuilder extends ModelBuilder {
 			
 			foreach($model->fields as $column_name => $field) {
 				var_dump($field);
+				$f = $field;
 				
 				if($column_name == 'id') {
 					$m->id = $doc['_id'];
@@ -140,6 +141,13 @@ class MongoModelBuilder extends ModelBuilder {
 					
 				} else if($field->getNamespaceName() == f\NumberField || $field->isSubclassOf(f\NumberField)) {
 					$m->$column_name = $doc[$column_name];
+					
+				} else if($field->getName() == f\ForeignKey) {
+					$fk_id_field_name = $column_name . '_id';
+					if($doc[$fk_id_field_name] != null) {
+						$m->$column_name = $doc[$fk_id_field_name];
+						$m->$fk_id_field_name = $doc[$fk_id_field_name];
+					}
 				}
 			}
 			
@@ -161,7 +169,7 @@ class MongoModelBuilder extends ModelBuilder {
 			if(empty($ids))
 				return [];
 			
-			$field_name = strtolower($dependency->model->getName()) . '_id';
+			$field_name = $dependency->field . '_id';
 			
 			if(count($ids) > 1)
 				$query[$field_name] = array('$in' => $ids);
@@ -179,10 +187,9 @@ class MongoModelBuilder extends ModelBuilder {
 			echo 'Sub-Query on '.$where->model->getName().':';
 			var_dump($query);	
 			
-			$m = new \MongoClient();
-			$db = $m->selectDB('test');
+			$db = ConnectionFactory::get($where->model->_meta['db_config']);
 			$collection = new \MongoCollection($db, $where->model->table_name);
-			
+		
 			$cursor = $collection->find($query, array('_id'));
 			$ids = array();
 			foreach($cursor as $doc)

@@ -68,7 +68,7 @@ class Query {
 					$where_statement = $this->get_where($model);
 					
 					if($where_statement == null)
-						$where_statement = new Where($model);
+						$where_statement = new Where($model, $field_name);
 					
 					if($current_where != null)
 						$current_where->dependencies[] = $where_statement;
@@ -94,8 +94,11 @@ class Query {
 					*/
 					$current_where->wheres[$field_name] = $value;
 						
+				} else if($field_class->getName() == f\BooleanField) {
+					$current_where->wheres[$field_name] = $value;
+					
 				} else {
-					echo "NOTHING";
+					echo "FIELD TYPE NOTHING";
 					continue;
 				}
 			}
@@ -120,10 +123,12 @@ class Query {
 
 class Where {
 	public $model = null;
+	public $field = null;
 	public $dependencies = array();
 	public $wheres = array();
 	
-	public function __construct($model) {
+	public function __construct($model, $field=null) {
 		$this->model = $model;
+		$this->field = $field;
 	}
 }
