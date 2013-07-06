@@ -1,9 +1,13 @@
 <?php
 namespace Jenga\DB\Models;
+
 use Jenga\DB\Query\Builders\SQLQueryBuilder;
 use Jenga\DB\Query\Builders\MongoQueryBuilder;
 use Jenga\DB\Fields as f;
 use Jenga\DB\Connections\ConnectionFactory;
+use Jenga\DB\Managers\MongoModelManager;
+use Jenga\DB\Query\QuerySet;
+use Jenga\DB\Query\Query;
 
 abstract class ModelBuilder {
 	
@@ -62,15 +66,24 @@ class MongoModelBuilder extends ModelBuilder {
 		$this->query_builder->add_table($model->table_name);
 		$collection_data = array();
 		
+		echo 'query_objects:';
+		var_dump($query_objects);
+		
 		$query = $query_objects[0];
+		echo 'Starting main query:';
 		var_dump($query);
 		$main_query = array();
 		
-		foreach($query->wheres as $where) {
-			$ids = $this->build_where($where, $is_dependent=true);
-			echo 'MAIN/'.$where->model->getName().': ' ;
-			$field_name = $where->field . '_id';
+		foreach($query->dependencies as $dependency) {
+			$ids = $this->build_dependency($dependency);
+			echo 'MAIN/'.$dependency->model->getName().': ' ;
+			$field_name = $dependency->field . '_id';
 			$main_query[$field_name] = array('$in' => $ids);
+		}
+		
+		if(count($query->wheres) > 0) {
+			$q = $this->build_where($query->wheres);
+			$main_query = array_merge($main_query, $q);
 		}
 		
 		/**
@@ -112,7 +125,7 @@ class MongoModelBuilder extends ModelBuilder {
 		$db = ConnectionFactory::get($model->_meta['db_config']);
 		$collection = new \MongoCollection($db, $model->table_name);
 		
-		echo 'QUERYING MAIN QUERY: ';
+		echo 'QUERYING MAIN QUERY ( ' . $model->getName() . '):';
 		var_dump($main_query);
 		$cursor = $collection->find($main_query);
 		
@@ -135,20 +148,36 @@ class MongoModelBuilder extends ModelBuilder {
 				}
 					
 				$field = new \ReflectionClass($field[0]);
+				$field_class_name = $field->getName();
 				
-				if($field->getNamespaceName() == f\CharField || $field->isSubclassOf(f\CharField)) {
+				// CharField
+				if($field_class_name == f\CharField || $field->isSubclassOf(f\CharField)) {
 					$m->$column_name = (string)$doc[$column_name];
 					
-				} else if($field->getNamespaceName() == f\NumberField || $field->isSubclassOf(f\NumberField)) {
+				// NumberField
+				} else if($field_class_name == f\NumberField || $field->isSubclassOf(f\NumberField)) {
 					$m->$column_name = $doc[$column_name];
 					
-				} else if($field->getName() == f\ForeignKey) {
+				// ForeignKey
+				} else if($field_class_name == f\ForeignKey) {
 					$fk_id_field_name = $column_name . '_id';
 					if($doc[$fk_id_field_name] != null) {
 						$m->$column_name = $doc[$fk_id_field_name];
 						$m->$fk_id_field_name = $doc[$fk_id_field_name];
 					}
-				}
+					/**
+					 *  Set the FK field with a pre-conditioned manager object
+					 *  to pull a QuerySet for Lazy Loading.
+					 **/
+					$m->$column_name = new QuerySet($f['model'], ['_id' => $doc[$fk_id_field_name]]);
+					
+				// ManyToMany
+				} else if($field_class_name == f\ManyToMany) {
+					if(!empty($doc[$column_name]))
+						$m->$column_name = new QuerySet($f['model'], ['_id'.Query::_IN => $doc[$column_name]]);
+					
+				} else
+					throw new \Exception('No logic for: ' . $field_class_name);
 			}
 			
 			$models[] = $m;
@@ -157,14 +186,19 @@ class MongoModelBuilder extends ModelBuilder {
 		return $models;
 	}
 	
-	private function build_where($where, $is_dependent=false) {
+	/**
+	 * Recursive function that builds and queries all dependency collections (Table Joins)
+	 * @param Query $dependency
+	 * @throws \Exception
+	 */
+	private function build_dependency(Query $query) {
 		
-		$query = array();
-		echo '<br/>WHERE:';
-		var_dump($where);
+		$mongo_query = array();
+		echo '<br/>Dependency:';
+		var_dump($query);
 		
-		foreach($where->dependencies as $dependency) {
-			$ids = $this->build_where($dependency, true);
+		foreach($query->dependencies as $dependency) {
+			$ids = $this->build_dependency($dependency);
 			
 			if(empty($ids))
 				return [];
@@ -172,25 +206,24 @@ class MongoModelBuilder extends ModelBuilder {
 			$field_name = $dependency->field . '_id';
 			
 			if(count($ids) > 1)
-				$query[$field_name] = array('$in' => $ids);
+				$mongo_query[$field_name] = array('$in' => $ids);
 			else
-				$query[$field_name] = $ids[0];
+				$mongo_query[$field_name] = $ids[0];
 		}
 		
-		foreach($where->wheres as $field => $value) {
-			// In here we would do checks for operation conditional checks and
-			// add in $in or $nin, etc.
+		if(count($query->wheres) > 0) {
+			$q = $this->build_where($query->wheres);
+			$mongo_query = array_merge($mongo_query, $q);
 		}
 		
-		if(!empty($where->wheres)) {
-			$query = array_merge($query, $where->wheres);
-			echo 'Sub-Query on '.$where->model->getName().':';
-			var_dump($query);	
+		if(!empty($mongo_query)) {
+			echo 'Sub-Query on '.$query->model->getName().':';
+			var_dump($mongo_query);	
 			
-			$db = ConnectionFactory::get($where->model->_meta['db_config']);
-			$collection = new \MongoCollection($db, $where->model->table_name);
+			$db = ConnectionFactory::get($query->model->_meta['db_config']);
+			$collection = new \MongoCollection($db, $query->model->table_name);
 		
-			$cursor = $collection->find($query, array('_id'));
+			$cursor = $collection->find($mongo_query, array('_id'));
 			$ids = array();
 			foreach($cursor as $doc)
 				$ids[] = $doc['_id'];
@@ -198,6 +231,36 @@ class MongoModelBuilder extends ModelBuilder {
 			echo "<br/>Returning IDs:";
 			var_dump($ids);
 			return $ids;
+			
+		} else
+			throw new \Exception('No criteria for Mongo Query.');
+	}
+	
+	private function build_where($wheres) {
+		$query = [];
+		
+		foreach($wheres as $field => $value) {
+			// In here we would do checks for operation conditional checks and
+			// add in $in or $nin, etc.
+				
+			if(!is_array($value)) {
+				$query[$field] = $value;
+				continue;
+			}
+			
+			foreach($value as $operator => $value) {
+				switch($value) {
+					case Query::IN || Query::_IN:
+						$conditional_operator = '$in';
+						break;
+			
+					default:
+						throw new \Exception('Unknown conditional operator: ' . $value);
+				}
+			}
+				
+			$query[$field] = [$conditional_operator => $value];
 		}
+		return $query;
 	}
 }

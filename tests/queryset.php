@@ -16,3 +16,6 @@ $mongo_posts = MongoPost::objects()->filter(
 echo "Mongo Posts:" . count($mongo_posts);
 echo "<br/>Mongo Post var_dump";
 var_dump($mongo_posts);
+echo "Blog Name: " . $mongo_posts[0]->blog->name;
+echo "Categories: " . $mongo_posts[0]->categories[0]->name;
+echo "<br/>Category Count: " . count($mongo_posts[0]->categories);

@@ -253,8 +253,11 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 		$alias_count = 1;
 		
 		// ONLY SUPPORTS ONE .filter() USE
-		$query_object = new Query();
+		$query_object = new Query($this->model);
 		$query_object->parse($this->model, $this->conditions);
+		
+		echo 'AFTER PARSE:';
+		var_dump($query_object);
 				
 		/**
 		foreach($this->conditions as $condition => $value) {

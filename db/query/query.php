@@ -5,43 +5,56 @@ use Jenga\DB\Fields as f;
 
 class Query {
 	
-	const _IN = '_in';
-	const _GT = '_gt';
-	const _GTE = '_gte';
-	const _LT = '_lt';
-	const _LTE = '_lte';
-	const _NE = '_ne';
+	const _IN = 	'__in';
+	const _GT = 	'__gt';
+	const _GTE = 	'__gte';
+	const _LT = 	'__lt';
+	const _LTE = 	'__lte';
+	const _NE = 	'__ne';
 	
-	const IN = ' in';
-	const LT = ' <';
-	const LTE = ' <=';
-	const GT = ' >';
-	const GTE = ' >=';
-	const NE = ' !=';
+	const IN = 		' in';
+	const LT = 		' <';
+	const LTE = 	' <=';
+	const GT = 		' >';
+	const GTE = 	' >=';
+	const NE = 		' !=';
 	
 	const DOT_OPERATOR = '.'; // django uses __
 	
 	public $related_models = array();
-	public $wheres = array();
+	
+	public $model;
+	public $wheres = [];
+	public $dependencies = [];
+	public $field;
+	
+	public function __construct($model=null, $field=null) {
+		$this->model = $model;
+		$this->field = $field;
+	}
 	
 	public function parse($main_model, $conditions) {
 		
 		foreach($conditions as $condition => $value) {
 				
-			$pieces = explode(self::DOT_OPERATOR, $condition);
 			$conditional_operator = null; // default is equals
 			$current_model = $main_model;
-			$current_where = null;
+			$current_query = $this;
 			
-			if(strstr($condition, ' ') !== false) {
-				if($operator = $this->find_operator($condition, array(self::LT, self::LTE, self::GT, self::GTE, self::NE)))
-					$conditional_operator = $operator;
+			if(strstr($condition, ' ') !== false)
+				$conditional_operator = $this->find_operator($condition, array(self::IN, self::LT, self::LTE, self::GT, self::GTE, self::NE));
+			
+			else if(strrpos($condition, '__') !== false)
+				$conditional_operator = $this->find_operator($condition, array(self::_IN, self::_LT, self::_LTE, self::_GT, self::_GTE, self::_NE));
+			
+			else
+				$conditional_operator = null;
+			
+			if($conditional_operator !== null)
+				$condition = str_replace($conditional_operator, '', $condition);
 				
-			} else if(strrpos($condition, '_') !== false) {
-				if($operator = $this->find_operator($condition, array(self::_LT, self::_LTE, self::_GT, self::_GTE, self::_NE)))
-					$conditional_operator = $operator;
-			}
-				
+			$pieces = explode(self::DOT_OPERATOR, $condition);
+			
 			foreach($pieces as $field_name) {
 				
 				if(!isset($current_model->fields[$field_name]))
@@ -49,9 +62,11 @@ class Query {
 		
 				$field = $current_model->fields[$field_name]; // ex: array('ForeignKey', 'model' => 'Post')
 				$field_class = IntrospectionModel::get($field[0]);
+				$field_class_name = $field_class->getName();
 		
+				echo 'Piece: ' . $field_name . ' | ' . $field_class_name;
 				// Related Field? Setup the join
-				if($field_class->isSubclassOf(f\RelatedField)) {
+				if($field_class_name == f\ForeignKey) {
 						
 					$model = IntrospectionModel::get($field['model']);
 						
@@ -65,23 +80,29 @@ class Query {
 					}
 					*/
 					
-					$where_statement = $this->get_where($model);
+					$dependency = $this->get_dependency($model);
 					
-					if($where_statement == null)
-						$where_statement = new Where($model, $field_name);
+					if($dependency == null)
+						$dependency = new Query($model, $field_name);
 					
-					if($current_where != null)
-						$current_where->dependencies[] = $where_statement;
-					else {
-						/** For now to prevent duplicate $models, we store by key **/
-						$key = $where_statement->model->getName();
-						if(!array_key_exists($key, $this->wheres))
-							$this->wheres[$key] = $where_statement;
-					}
+					$key = $dependency->model->getName();
+					
+					if(!isset($current_query->dependencies[$key]))
+						$current_query->dependencies[$key] = $dependency;
 
 					$current_model = $model;
-					$current_where = $where_statement;
+					$current_query = $dependency;
 		
+				} else if($field_class_name == f\ManyToMany) {
+					
+					// NOT IMPLEMENTED
+					exit("ManyToMany querying is not yet implemented!");
+					
+					if($conditional_operator == null) // MIGHT NOT NEED THIS??
+						$current_query->wheres[$field_name] = $value;
+					else
+						$current_query->wheres[$field_name] = [$conditional_operator => $value];
+					
 				} else if($field_class->getName() == f\CharField || $field_class->isSubclassOf(f\CharField)) {
 				
 					/** SQL SHIT
@@ -92,10 +113,14 @@ class Query {
 						'value' => $value
 					);
 					*/
-					$current_where->wheres[$field_name] = $value;
-						
+					
+					if($conditional_operator == null)
+						$current_query->wheres[$field_name] = $value;
+					else
+						$current_query->wheres[$field_name] = [$conditional_operator => $value];
+					
 				} else if($field_class->getName() == f\BooleanField) {
-					$current_where->wheres[$field_name] = $value;
+					$current_query->wheres[$field_name] = $value;
 					
 				} else {
 					echo "FIELD TYPE NOTHING";
@@ -112,11 +137,10 @@ class Query {
 		return null;
 	}
 	
-	private function get_where($model) {
-		foreach($this->wheres as $where) {
-			if($where->model == $model)
-				return $where;
-		}
+	private function get_dependency($reflection_model) {
+		foreach($this->dependencies as $dependency)
+			if($dependency->model == $reflection_model)
+				return $dependency;
 		return null;
 	}
 }

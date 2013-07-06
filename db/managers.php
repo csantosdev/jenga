@@ -27,17 +27,26 @@ abstract class ModelManager {
 	
 	private $model;
 	private $model_name;
+	private $pre_conditions;
 	
-	public function __construct($model_name) {
+	public function __construct($model_name, $pre_conditions=null) {
 		$this->model_name = $model_name;
+		$this->pre_conditions = $pre_conditions;
 	}
 	
 	public function filter($conditions) {
+		if($this->pre_conditions != null)
+			$conditions = array_merge($this->pre_conditions, $conditions);
+		
 		return new QuerySet($this->model_name, $conditions);
 	}
 	
+	/**
+	 * Throws Exception if query returns 0 rows
+	 * @param Array $conditions
+	 */
 	public function get($conditions) {
-		$qs = new QuerySet($this->model_name, $conditions);
+		$qs = $this->filter($conditions);
 		return $qs[0];
 	}
 	
@@ -90,7 +99,10 @@ class MongoModelManager extends ModelManager {
 				$fk_id_field_name = $field_name . '_id';
 				//if(!isset($model->$fk_id_field_name))
 					//$model->
-			}
+					
+			} else if($field_name == 'id')
+				continue;
+			
 			$doc[$field_name] = $model->$field_name;
 		}
 		

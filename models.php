@@ -59,7 +59,7 @@ class MongoPost extends MongoModel {
 	
 	public $blog = array(f\ForeignKey, 'model'=>'MongoBlog');
 	public $title = array(f\TextField);
-	public $categories = array(f\ManyToMany, 'model'=>'Category');
+	public $categories = array(f\ManyToMany, 'model'=>'MongoCategory');
 	public $_meta = [
 		'db_config' => 'mongo'];
 }
@@ -70,4 +70,12 @@ class MongoBlog extends MongoModel {
 	public $site = array(f\ForeignKey, 'model' => 'Site');
 	public $_meta = [
 		'db_config' => 'mongo'];
+}
+
+class MongoCategory extends MongoModel {
+	
+	public $name = [f\CharField];
+	public $_meta = [
+		'db_config' => 'mongo'
+	];
 }

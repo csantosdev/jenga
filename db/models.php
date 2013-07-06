@@ -72,7 +72,7 @@ class Model {
 
 class MongoModel extends Model {
 	
-	public $_id = null;
+	public $_id = array(f\TextField);
 	public $id = array(f\TextField);
 	
 	public function __construct() {
