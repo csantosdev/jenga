@@ -79,3 +79,26 @@ class MongoCategory extends MongoModel {
 		'db_config' => 'mongo'
 	];
 }
+
+class MongoFeedInstruction extends MongoModel {
+	
+	public $type = [f\IntField, 'default' => 1];
+	public $required = [f\BooleanField, 'default' => false];
+	public $multiple = [f\BooleanField, 'default' => false];
+	public $fields = [f\EmbeddedDocumentField, 'type' => f\ArrayType];
+	public $attribute = [f\ForeignKey, 'model' => 'MongoAttribute'];
+	
+	public $_meta = [
+		'db_config' => 'mongo'
+	];
+} 
+
+class MongoAttribute extends MongoModel {
+	
+	public $name = [f\CharField];
+	
+	public $_meta = [
+		'db_config' => 'mongo'
+	];
+	
+}

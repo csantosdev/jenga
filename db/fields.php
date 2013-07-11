@@ -12,6 +12,10 @@ const BooleanField = BooleanField::class;
 const ForeignKey = ForeignKey::class;
 const ManyToMany = ManyToMany::class;
 
+const EmbeddedDocumentField = EmbeddedDocumentField::class;
+const ArrayType = 'Array';
+const ObjectType = 'Object';
+
 class Field {
 	
 	private $properties = array(
@@ -135,4 +139,8 @@ class FloatField extends NumberField {
 
 class PositiveIntField extends IntField {
 
+}
+
+class EmbeddedDocumentField extends Field {
+	
 }

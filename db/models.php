@@ -123,12 +123,9 @@ class IntrospectionModel {
 		foreach($reflection->fields as $col_name => $field) {
 			$field = new \ReflectionClass($field[0]);
 			
-			echo "<br/>Field: " . $col_name;
 			
 			if($field->getNamespaceName() == f\CharField || $field->isSubclassOf(f\CharField)) {
-				echo 'setting ' . $col_name;
 				$model->$col_name = null;
-				var_dump($model->$col_name);
 					
 			} else if($field->getNamespaceName() == f\NumberField || $field->isSubclassOf(f\NumberField)) {
 				$model->$col_name = null;

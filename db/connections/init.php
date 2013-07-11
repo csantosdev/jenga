@@ -177,7 +177,6 @@ class ConnectionFactory {
 				
 			case Connection::MONGO_BACKEND_TYPE:
 				$str = sprintf('mongodb://%s:%d',$config['host'], $config['port']);
-				echo $str;
 				$options = ['username' => $config['user'], 'password' => $config['pass'], 'db' => $config['name']];
 				$client = new \MongoClient($str, $options);
 				$connection = $client->selectDB($config['name']);

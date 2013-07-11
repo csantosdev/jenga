@@ -95,19 +95,47 @@ class MongoModelManager extends ModelManager {
 		$doc = [];
 		
 		foreach($reflection_model->fields as $field_name => $field) {
+			
 			if($field[0] == f\ForeignKey) {
 				$fk_id_field_name = $field_name . '_id';
-				//if(!isset($model->$fk_id_field_name))
-					//$model->
+				
+				if(!isset($model->$fk_id_field_name)) {
+					$field_name = $fk_id_field_name;
+					$value = null;
+				}
 					
-			} else if($field_name == 'id')
-				continue;
+			} else if($field_name == 'id' || $field_name == '_id') {
+				if($model->$field_name == null)
+					continue;				
+			}
 			
-			$doc[$field_name] = $model->$field_name;
+			else if($field[0] == f\BooleanField) {
+				
+				if(isset($field['default']))
+					$value = $field['default'];
+				else
+					$value = null;
+				
+			} else if($field[0] == f\EmbeddedDocumentField) {
+				
+				if(isset($field['model'])) {
+					
+					
+				} else if(isset($field['models'])) {
+					
+					
+				// Default to treating as Array
+				} else {
+					$value = $model->$field_name;
+				}
+				
+			} else
+				$value = $model->$field_name;
+			
+			$doc[$field_name] = $value;
 		}
 		
 		$collection->save($doc);
-		echo "saved";
 	}
 }
 

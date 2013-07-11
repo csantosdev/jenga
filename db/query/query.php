@@ -23,9 +23,28 @@ class Query {
 	
 	public $related_models = array();
 	
+	/**
+	 * The main reflection model for the query. Not always needed.
+	 * @var ReflectionClass
+	 */
 	public $model;
+	
+	/**
+	 * The WHERE criteria for the this object's $model.
+	 * @var Array
+	 */
 	public $wheres = [];
+	
+	/**
+	 * Tables/Collections to JOIN onto the object's $model.
+	 * @var Array - Array of Query objects.
+	 */
 	public $dependencies = [];
+	
+	/**
+	 * Name of the field to do the JOIN on from the object's $model.
+	 * @var string
+	 */
 	public $field;
 	
 	public function __construct($model=null, $field=null) {
@@ -33,12 +52,15 @@ class Query {
 		$this->field = $field;
 	}
 	
-	public function parse($main_model, $conditions) {
+	public function parse($conditions) {
+		
+		if(!isset($this->model))
+			throw new \Exception('Must have a $model reflection class set before parsing.');
 		
 		foreach($conditions as $condition => $value) {
 				
 			$conditional_operator = null; // default is equals
-			$current_model = $main_model;
+			$current_model = $this->model;
 			$current_query = $this;
 			
 			if(strstr($condition, ' ') !== false)
@@ -142,17 +164,5 @@ class Query {
 			if($dependency->model == $reflection_model)
 				return $dependency;
 		return null;
-	}
-}
-
-class Where {
-	public $model = null;
-	public $field = null;
-	public $dependencies = array();
-	public $wheres = array();
-	
-	public function __construct($model, $field=null) {
-		$this->model = $model;
-		$this->field = $field;
 	}
 }

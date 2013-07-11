@@ -133,11 +133,25 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 	private $objects = null;
 	private $position = 0;
 	
+	/**
+	 * Flag to let get_objects() know whether there is an ORM query to be parsed or not.
+	 * @var Boolean
+	 */
+	private $parse_query = true;
+	
+	/**
+	 * Used to hold an already parsed query. Mainly used by the Lazy-Loading functionality.
+	 * @var Query
+	 */
+	private $query;
+	
 	private static $builder;
 	
-	public function __construct($model, $conditions) {
+	public function __construct($model, $conditions, $parse_query=true, $query=null) {
 		$this->model = IntrospectionModel::get($model);
 		$this->conditions = $conditions;
+		$this->parse_query = $parse_query;
+		$this->query = $query;
 	}
 	
 	public function __get($name) {
@@ -151,6 +165,10 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 	
 	public function query() {
 		return $this->build_query();
+	}
+	
+	public function set_query($query) {
+		$this->query = $query;
 	}
 	
 	/**
@@ -253,11 +271,14 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 		$alias_count = 1;
 		
 		// ONLY SUPPORTS ONE .filter() USE
-		$query_object = new Query($this->model);
-		$query_object->parse($this->model, $this->conditions);
 		
-		echo 'AFTER PARSE:';
-		var_dump($query_object);
+		if($this->parse_query) {
+			$query_object = new Query($this->model);
+			$query_object->parse($this->conditions);
+			
+		} else
+			$query_object = $this->query;
+		
 				
 		/**
 		foreach($this->conditions as $condition => $value) {
@@ -334,8 +355,6 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 		// Build the query
 		$models = $builder->build_select($this->model, array($query_object));
 		
-		echo "<br/>MODELS:";
-		var_dump($models);
 		return $this->objects = $models;
 		
 		$model_fields = $this->model->getDefaultProperties();

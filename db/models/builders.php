@@ -135,52 +135,7 @@ class MongoModelBuilder extends ModelBuilder {
 		foreach($cursor as $doc) {
 			echo '<br/>Pulled:';
 			var_dump($doc);
-			
-			$m = $model->newInstance();
-			
-			foreach($model->fields as $column_name => $field) {
-				var_dump($field);
-				$f = $field;
-				
-				if($column_name == 'id') {
-					$m->id = $doc['_id'];
-					continue;
-				}
-					
-				$field = new \ReflectionClass($field[0]);
-				$field_class_name = $field->getName();
-				
-				// CharField
-				if($field_class_name == f\CharField || $field->isSubclassOf(f\CharField)) {
-					$m->$column_name = (string)$doc[$column_name];
-					
-				// NumberField
-				} else if($field_class_name == f\NumberField || $field->isSubclassOf(f\NumberField)) {
-					$m->$column_name = $doc[$column_name];
-					
-				// ForeignKey
-				} else if($field_class_name == f\ForeignKey) {
-					$fk_id_field_name = $column_name . '_id';
-					if($doc[$fk_id_field_name] != null) {
-						$m->$column_name = $doc[$fk_id_field_name];
-						$m->$fk_id_field_name = $doc[$fk_id_field_name];
-					}
-					/**
-					 *  Set the FK field with a pre-conditioned manager object
-					 *  to pull a QuerySet for Lazy Loading.
-					 **/
-					$m->$column_name = new QuerySet($f['model'], ['_id' => $doc[$fk_id_field_name]]);
-					
-				// ManyToMany
-				} else if($field_class_name == f\ManyToMany) {
-					if(!empty($doc[$column_name]))
-						$m->$column_name = new QuerySet($f['model'], ['_id'.Query::_IN => $doc[$column_name]]);
-					
-				} else
-					throw new \Exception('No logic for: ' . $field_class_name);
-			}
-			
-			$models[] = $m;
+			$models[] = $this->build_model($model, $doc);
 		}
 		
 		return $models;
@@ -262,5 +217,87 @@ class MongoModelBuilder extends ModelBuilder {
 			$query[$field] = [$conditional_operator => $value];
 		}
 		return $query;
+	}
+	
+	/**
+	 * Puts data pulled from Mongo into the PHP model class.
+	 * 
+	 * @param ReflectionClass $model
+	 * @param Array $doc
+	 */
+	private function build_model(\ReflectionClass $model, $doc) {
+		
+		$m = $model->newInstance();
+		
+		foreach($model->fields as $column_name => $field) {
+			var_dump($field);
+			$f = $field;
+		
+			if($column_name == 'id') {
+				$m->id = $doc['_id'];
+				continue;
+			}
+				
+			//TODO: DO THIS BETTER
+			$field = new \ReflectionClass($field[0]);
+			$field_class_name = $field->getName();
+		
+			// CharField
+			if($field_class_name == f\CharField || $field->isSubclassOf(f\CharField)) {
+				$m->$column_name = (string)$doc[$column_name];
+					
+				// NumberField
+			} else if($field_class_name == f\NumberField || $field->isSubclassOf(f\NumberField)) {
+				$m->$column_name = $doc[$column_name];
+					
+				// ForeignKey
+			} else if($field_class_name == f\ForeignKey) {
+				$fk_id_field_name = $column_name . '_id';
+				if($doc[$fk_id_field_name] != null) {
+					$m->$column_name = $doc[$fk_id_field_name];
+					$m->$fk_id_field_name = $doc[$fk_id_field_name];
+				}
+				/**
+				 *  Set the FK field with a pre-conditioned manager object
+				 *  to pull a QuerySet for Lazy Loading.
+				 **/
+				$query = new Query();
+				$query->wheres['_id'] = $doc[$fk_id_field_name];
+				$qs = new QuerySet($f['model'], null, false, $query);
+				$m->$column_name = $qs;
+					
+				// ManyToMany
+			} else if($field_class_name == f\ManyToMany) {
+				if(!empty($doc[$column_name])) {
+					$query = new Query();
+		
+					if(count($doc[$column_name]) > 1)
+						$query->wheres['_id'] = [Query::_IN => $doc[$column_name]];
+					else
+						$query->wheres['_id'] = $doc[$column_name][0];
+		
+					$qs = new QuerySet($f['model'], null, false, $query);
+					$m->$column_name = $qs;
+				}
+					
+				// EmbeddedDocument
+			} else if($field_class_name == f\EmbeddedField) {
+				
+				if(isset($field['model'])) {
+					
+					
+				} else if(isset($field['models'])) {
+					
+					
+				// Set properties as Array
+				} else {
+					$m->$column_name = $doc;
+				}
+		
+			} else
+				throw new \Exception('No logic for: ' . $field_class_name);
+		}
+		
+		return $m;
 	}
 }
