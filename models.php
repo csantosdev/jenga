@@ -102,3 +102,10 @@ class MongoAttribute extends MongoModel {
 	];
 	
 }
+
+class MongoDatafeed extends MongoModel {
+	
+	public $merchant = [f\ForeignKey, 'model' => 'MongoMerchant'];
+	public $feed_instructions = [f\EmbeddedDocumentField, 'type' => f\ArrayType, 'models' => []];
+	public $account = [f\ForeignKey, 'model' => 'MongoAccount'];
+}

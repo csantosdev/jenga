@@ -246,25 +246,30 @@ class MongoModelBuilder extends ModelBuilder {
 			if($field_class_name == f\CharField || $field->isSubclassOf(f\CharField)) {
 				$m->$column_name = (string)$doc[$column_name];
 					
-				// NumberField
+			// NumberField
 			} else if($field_class_name == f\NumberField || $field->isSubclassOf(f\NumberField)) {
 				$m->$column_name = $doc[$column_name];
+					
+			// BooleanField
+			} else if($field_class_name == f\BooleanField) {
+				$m->$column_name = (bool)$doc[$column_name];
 					
 				// ForeignKey
 			} else if($field_class_name == f\ForeignKey) {
 				$fk_id_field_name = $column_name . '_id';
-				if($doc[$fk_id_field_name] != null) {
-					$m->$column_name = $doc[$fk_id_field_name];
-					$m->$fk_id_field_name = $doc[$fk_id_field_name];
-				}
 				/**
 				 *  Set the FK field with a pre-conditioned manager object
 				 *  to pull a QuerySet for Lazy Loading.
 				 **/
-				$query = new Query();
-				$query->wheres['_id'] = $doc[$fk_id_field_name];
-				$qs = new QuerySet($f['model'], null, false, $query);
-				$m->$column_name = $qs;
+				if($doc[$fk_id_field_name] != null) {
+					$m->$column_name = $doc[$fk_id_field_name];
+					$m->$fk_id_field_name = $doc[$fk_id_field_name];
+				
+					$query = new Query();
+					$query->wheres['_id'] = $doc[$fk_id_field_name];
+					$qs = new QuerySet($f['model'], null, false, $query);
+					$m->$column_name = $qs;
+				}
 					
 				// ManyToMany
 			} else if($field_class_name == f\ManyToMany) {
@@ -281,12 +286,12 @@ class MongoModelBuilder extends ModelBuilder {
 				}
 					
 				// EmbeddedDocument
-			} else if($field_class_name == f\EmbeddedField) {
+			} else if($field_class_name == f\EmbeddedDocumentField) {
 				
-				if(isset($field['model'])) {
+				if(isset($f['model'])) {
 					
 					
-				} else if(isset($field['models'])) {
+				} else if(isset($f['models'])) {
 					
 					
 				// Set properties as Array
