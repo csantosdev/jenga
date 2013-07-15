@@ -32,3 +32,14 @@ $feed->save(); // This should save the $pull object into the $feed doc in Mongo.
  */
 $pull->fields = [3,4];
 $feed->save();
+
+/*
+ * Pulling the object from the database.
+ */
+$feed_id = $feed->id;
+$feed = null;
+$feed = Datafeed::objects()->get(['_id' => $feed_id]);
+echo 'Account Name: ' . $feed->account->name;
+echo "<br>Email: " . $feed->account->email;
+echo "<br>Feed Instruction field[0]: " . $feed->feed_instructions[0]->fields[0];
+var_dump($feed->feed_instructions);

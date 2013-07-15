@@ -115,6 +115,9 @@ class MongoModelManager extends ModelManager {
 		$reflection_model = IntrospectionModel::get(get_class($model));
 		$doc = [];
 		
+		if($is_embedded)
+			$doc['_class'] = $reflection_model->getName();
+		
 		foreach($reflection_model->fields as $field_name => $field) {
 				
 			if($field[0] == f\ForeignKey) {
@@ -126,7 +129,7 @@ class MongoModelManager extends ModelManager {
 				
 				if(!$can_be_null) {
 					if(!isset($model->$field_name))
-						throw new \Exception ('ForeignKey object "' . $field_name . ' cannot be null.');
+						throw new \Exception ('ForeignKey object constraint: "$' . $field_name . '" cannot be null.');
 					else if(!isset($model->$field_name->_id))
 						throw new \Exception('ForeignKey object ' . $field_name . ' does not have an ID (_id). Must be saved first.');
 					

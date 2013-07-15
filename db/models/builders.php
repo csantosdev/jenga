@@ -240,22 +240,22 @@ class MongoModelBuilder extends ModelBuilder {
 				
 			//TODO: DO THIS BETTER
 			$field = new \ReflectionClass($field[0]);
-			$field_class_name = $field->getName();
+			$field_class = $field->getName();
 		
 			// CharField
-			if($field_class_name == f\CharField || $field->isSubclassOf(f\CharField)) {
+			if($field_class == f\CharField || $field->isSubclassOf(f\CharField)) {
 				$m->$column_name = (string)$doc[$column_name];
 					
 			// NumberField
-			} else if($field_class_name == f\NumberField || $field->isSubclassOf(f\NumberField)) {
+			} else if($field_class == f\NumberField || $field->isSubclassOf(f\NumberField)) {
 				$m->$column_name = $doc[$column_name];
 					
 			// BooleanField
-			} else if($field_class_name == f\BooleanField) {
+			} else if($field_class == f\BooleanField) {
 				$m->$column_name = (bool)$doc[$column_name];
 					
-				// ForeignKey
-			} else if($field_class_name == f\ForeignKey) {
+			// ForeignKey
+			} else if($field_class == f\ForeignKey) {
 				$fk_id_field_name = $column_name . '_id';
 				/**
 				 *  Set the FK field with a pre-conditioned manager object
@@ -271,8 +271,9 @@ class MongoModelBuilder extends ModelBuilder {
 					$m->$column_name = $qs;
 				}
 					
-				// ManyToMany
-			} else if($field_class_name == f\ManyToMany) {
+			// ManyToMany
+			} else if($field_class == f\ManyToMany) {
+				
 				if(!empty($doc[$column_name])) {
 					$query = new Query();
 		
@@ -285,22 +286,54 @@ class MongoModelBuilder extends ModelBuilder {
 					$m->$column_name = $qs;
 				}
 					
-				// EmbeddedDocument
-			} else if($field_class_name == f\EmbeddedDocumentField) {
+			// EmbeddedDocument
+			} else if($field_class == f\EmbeddedDocumentField) {
 				
-				if(isset($f['model'])) {
+				if(isset($f['type']))
+					$type = $f['type'];
+				else
+					$type = f\ObjectType;
+				
+				if($type == f\ObjectType)
+					$items = [$doc[$column_name]];
+				else
+					$items = $doc[$column_name];
 					
-					
-				} else if(isset($f['models'])) {
-					
-					
-				// Set properties as Array
-				} else {
-					$m->$column_name = $doc;
+				$docs = [];
+				
+				foreach($items as $item) {
+				
+					if(isset($f['model'])) {
+						
+						$reflection_model = IntrospectionModel::get($f['model']);
+						$docs[] = $this->build_model($reflection_model, $item);
+						
+					} else if(isset($f['models'])) {
+						
+						if(!isset($item['_class'])) // Class name of model
+							throw new \Exception('No _class assigned to Mongo object ' . $model->getName());
+						
+						if(!in_array($item['_class'], $f['models']))
+							throw new \Exception($item['_class'] . ' class is not allowed to be used with ' . $model->getName());
+						
+						$reflection_model = IntrospectionModel::get($item['_class']);
+						$docs[] = $this->build_model($reflection_model, $item);
+						
+					// Set properties as-is
+					} else
+						$docs[] = $item;
+				}
+				
+				//TODO: DO THIS BETTER
+				if(!empty($docs)) {
+					if($type == f\ObjectType)
+						$m->$column_name = $docs[0];
+					else
+						$m->$column_name = $docs;
 				}
 		
 			} else
-				throw new \Exception('No logic for: ' . $field_class_name);
+				throw new \Exception('No logic for: ' . $field_class);
 		}
 		
 		return $m;
