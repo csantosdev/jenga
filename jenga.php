@@ -64,3 +64,8 @@ class Jenga {
 		return static::$db;
 	}
 }
+
+// Load app's settings
+
+// Setup Autoloading
+
