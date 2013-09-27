@@ -1,5 +1,5 @@
 <?php
-use jenga\http\Request;
+use Jenga\Http\Request;
 
 function index(Request $request) {
 	echo "{ RENDER INDEX PAGE }";

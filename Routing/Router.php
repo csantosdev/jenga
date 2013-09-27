@@ -28,8 +28,13 @@ class Router {
 					$args[] = $matches[$param->name];
 				}
 				call_user_func_array($view_func, $args); //TODO: Collect a $response object and render middleware or whatever you plan to do
+				break;
 			}
 		}
+	}
+
+	public static function setRoutes($urls) {
+		self::$routes = $urls;
 	}
 
 	private static function getRequest() {
