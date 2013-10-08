@@ -16,7 +16,10 @@ $conf = [
 			'pass' => '',
 			'port' => null
 		]
+	],
+	'INSTALLED_APPS' => [
+		'jenga-thumbnails'
 	]
 ];
-$conf['BASE_URL'] = 'http:/' . $conf['DOMAIN'];
+$conf['BASE_URL'] = 'http://' . $conf['DOMAIN'];
 Settings::set($conf);
