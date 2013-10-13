@@ -1,14 +1,37 @@
 <?php
-namespace Jenga\Db\Fields;
+namespace Jenga\DB\Fields;
 
-const Field = 'Jenga\\Db\\Fields\\Field';
-const RelatedField = 'Jenga\\DB\Fields\\RelatedField';
-const IntField = 'Jenga\\Db\\Fields\\IntField';
+/* Will work when running on PHP5.5+
+const Field = Field::class;
+const RelatedField = RelatedField::class;
+const NumberField = NumberField::class;
+const IntField = IntField::class;
+const PositiveIntField = PositiveIntField::class;
+const CharField = CharField::class;
+const TextField = TextField::class;
+const BooleanField = BooleanField::class;
+const ForeignKey = ForeignKey::class;
+const ManyToMany = ManyToMany::class;
+
+const EmbeddedDocumentField = EmbeddedDocumentField::class;
+*/
+
+// Done this way got PHP5.4 (for now)
+const Field = 'Jenga\\DB\\Fields\\Field';
+const RelatedField = 'Jenga\\DB\\Fields\\RelatedField';
+const NumberField = 'Jenga\\DB\\Fields\\NumberField';
+const IntField = 'Jenga\\DB\\Fields\\IntField';
 const PositiveIntField = 'Jenga\\DB\\Fields\\PositiveIntField';
-const CharField = 'Jenga\\Db\\Fields\\CharField';
-const TextField = 'Jenga\\Db\\Fields\\TextField';
-const ForeignKey = 'Jenga\\Db\\Fields\\ForeignKey';
-const ManyToMany = 'Jenga\\Db\\Fields\\ManyToMany';
+const CharField = 'Jenga\\DB\\Fields\\CharField';
+const TextField = 'Jenga\\DB\\Fields\\TextField';
+const BooleanField = 'Jenga\\DB\\Fields\\BooleanField';
+const ForeignKey = 'Jenga\\DB\\Fields\\ForeignKey';
+const ManyToMany = 'Jenga\\DB\\Fields\\ManyToMany';
+
+const EmbeddedDocumentField = 'Jenga\\DB\\Fields\\EmbeddedDocumentField';
+
+const ArrayType = 'Array';
+const ObjectType = 'Object';
 
 class Field {
 	
@@ -99,7 +122,7 @@ class CharField extends Field {
 	}
 }
 
-class TextField extends Field {
+class TextField extends CharField {
 
 	public function __construct($args) {
 		$this->properties = $args;
@@ -133,4 +156,8 @@ class FloatField extends NumberField {
 
 class PositiveIntField extends IntField {
 
+}
+
+class EmbeddedDocumentField extends Field {
+	
 }

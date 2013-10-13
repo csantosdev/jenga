@@ -1,24 +1,24 @@
 <?php
 namespace Jenga\Db\Models;
+use Jenga\Db\Managers\MongoModelManager;
+
+use Jenga\Db\Connections\Connection;
+use Jenga\Db\Connections\ConnectionTypeFactory;
+
+use Jenga\Db\Managers\SQLModelManager;
+
 use Jenga\Db\Managers\BasicModelManager;
 use Jenga\Db\Fields as f;
 use Jenga\Helpers;
 
-const SQL_BACKEND_TYPE = 'sql';
-const MONGO_BACKEND_TYPE = 'mongo';
-
-class Model
-{
+class Model {
+	
 	public $id = array(f\PositiveIntField);
-	public $backend_type = SQL_BACKEND_TYPE;
+	public $_meta = array(
+		'db_config' => 'default');
 	
-	public $_meta = array();
-	
-	private $child_class;
-	private $fields = array();
-	
-	protected static $objects;
-	private static $reflection_classes = array();
+	protected $manager;
+	private $backend_config;
 	
 	/**
 	 * Set any Jenga fields to null.
@@ -26,31 +26,36 @@ class Model
 	public function __construct() {
 		
 		$class_name = get_class($this);
-		if(isset(self::$reflection_classes[$class_name]))
-			$reflection = self::$reflection_classes[$class_name];
-		else {
-			$reflection = new \ReflectionClass($this);
-			self::$reflection_classes[$class_name] = $reflection;
-		}
-		
-		$properties = $reflection->getDefaultProperties();
-		
-		foreach($properties as $field_name => $field) {
-			$field_class_name = IntrospectionModel::get_field_type($field);
-				
-			if($field_class_name !== null) {
-				$this->$field_name = null;
-				$this->fields[$field_name] = $field;
-				$this->_meta['fields'][$field_name] = &$this->$field_name;
+		$reflection = IntrospectionModel::get($class_name);
+
+		foreach($reflection->fields as $field_name => $field) {
+			
+			// Eventually have this automatically set when you create a reflection class
+			$field_config = $field;
+			$field = new \ReflectionClass($field[0]);
+			
+			if($field->getName() == f\CharField || $field->isSubclassOf(f\CharField)) {
+				if(isset($field_config['default']))
+					$this->$field_name = $field_config['default'];
+				else
+					$this->$field_name = null;
 			}
+					
+			else if($field->getName() == f\NumberField || $field->isSubclassOf(f\NumberField))
+				$this->$field_name = null;
+			
+			else
+				$this->$field_name = null;
+			
 		}
 		
-		$this->child_class = $class_name;
+		$backend_config = ConnectionTypeFactory::get($this->_meta['db_config']);
+		$this->backend_config = &$backend_config;
+		$this->manager = new SQLModelManager($class_name);
 	}
 	
 	public static function objects() {
-		// FIND BETTER WAY TO DO THIS
-		return new BasicModelManager(get_called_class());
+		return new SQLModelManager(get_called_class()); // FIND BETTER WAY TO DO THIS
 	}
 	
 	public function get_table_name() {
@@ -63,32 +68,28 @@ class Model
 	 * Validate fields and then pass to the db object to save
 	 */
 	public function save() {
-		
-		$new = false;
-		if($this->id == null) {
-			$new = true;
-			$this->id = 1; // To pass validation
-		}
-		
-		foreach($this->fields as $field_name => $field) {
-			
-			$field_class = $field[0];
-			$field_class::validate($this->$field_name); // Throws Exceptions
-			
-		}	
-			
-		$db = \Jenga::get_db();
-		
-		if($new) {
-		}
+		$this->manager->save($this);
 	}
 }
 
 
 class MongoModel extends Model {
+	
+	public $_id = array(f\TextField);
 	public $id = array(f\TextField);
-	public $backend_type = MONGO_BACKEND_TYPE;
+	
+	public function __construct() {
+		parent::__construct();
+		$this->_id = &$this->id;
+		$this->manager = new MongoModelManager(get_class($this));
+	}
+
+	public static function objects() {
+		return new MongoModelManager(get_called_class());
+	}
 }
+
+
 
 
 class IntrospectionModel {
@@ -102,7 +103,9 @@ class IntrospectionModel {
 			$properties = $reflection->getDefaultProperties();
 			$reflection->fields = array();
 			$reflection->table_name = strtolower($model_name);
-			$reflection->_meta['properties'] = $properties;
+			
+			if(isset($properties['_meta']))
+				$reflection->_meta = $properties['_meta'];
 			
 			foreach($properties as $field_name => $field) {
 				$field_class_name = self::get_field_type($field);
@@ -115,6 +118,23 @@ class IntrospectionModel {
 		}
 			
 		return self::$models[$model_name];
+	}
+	
+	public static function instantiate($model_name) {
+		$reflection = self::get($model_name);
+		$model = $reflection->newInstance(true);
+		foreach($reflection->fields as $col_name => $field) {
+			$field = new \ReflectionClass($field[0]);
+			
+			
+			if($field->getNamespaceName() == f\CharField || $field->isSubclassOf(f\CharField)) {
+				$model->$col_name = null;
+					
+			} else if($field->getNamespaceName() == f\NumberField || $field->isSubclassOf(f\NumberField)) {
+				$model->$col_name = null;
+			}
+		}
+		return $model;
 	}
 	
 	
@@ -170,6 +190,20 @@ class IntrospectionModel {
 				
 		} catch(\Exception $e) {
 			return null;
+		}
+	}
+}
+
+class ModelManagerFactory {
+	
+	public static function get($backend_config, $model_name) {
+		switch($backend_config['type']) {
+			case Connection::SQL_BACKEND_TYPE:
+				return new SQLModelManager($model_name);
+			case Connection::MONGO_BACKEND_TYPE:
+				return new MongoModelManager($model_name);
+			default:
+				throw new \Exception('Could not find a model manager for: ' . $backend_config['type']);
 		}
 	}
 }
