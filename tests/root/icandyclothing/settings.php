@@ -18,7 +18,7 @@ $conf = [
 		]
 	],
 	'INSTALLED_APPS' => [
-		'Thumbnails'
+		'thumbnails'
 	]
 ];
 $conf['BASE_URL'] = 'http://' . $conf['DOMAIN'];

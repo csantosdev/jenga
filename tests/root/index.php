@@ -49,7 +49,7 @@ spl_autoload_register(function ($class) {
 require $_SERVER['JENGA_LIBRARY_PATH'] . '/jenga/db/fields/fields.php';
 require JENGA_APP_PATH . '/settings.php';
 
-use Jenga\Conf\Settings;
+use jenga\conf\Settings;
 
 // Bootstrap
 foreach(Settings::get('INSTALLED_APPS') as $app) {
@@ -60,11 +60,12 @@ foreach(Settings::get('INSTALLED_APPS') as $app) {
         require $init;
 
     $template_tags = $path . '/template_tags.php';
-    if(file_exists($template_tags))
-        require $template_tags;
+    echo $template_tags;
+    if(file_exists($template_tags)) { echo "yes";
+        require $template_tags; }
 }
 
 require JENGA_APP_PATH . '/controllers.php';
 
-use Jenga\Routing\Router;
+use jenga\routing\Router;
 Router::route($_SERVER['REQUEST_URI']);

@@ -1,6 +1,6 @@
 <?php
-use Jenga\Http\Request;
-use Jenga\Template\BasicTemplate;
+use jenga\http\Request;
+use jenga\template\BasicTemplate;
 
 function index(Request $request) {
 	BasicTemplate::render('index.html', ['name'=>'Chris Santos']);
