@@ -1,11 +1,10 @@
 <?php
-namespace jenga\db\Models;
-use jenga\db\managers\MongoModelManager;
+namespace jenga\db\models;
+use jenga\db\models\managers\MongoModelManager;
+use jenga\db\models\managers\SQLModelManager;
 
 use jenga\db\connections\Connection;
 use jenga\db\connections\ConnectionTypeFactory;
-
-use jenga\db\managers\SQLModelManager;
 
 use jenga\db\managers\BasicModelManager;
 use jenga\db\fields as f;
