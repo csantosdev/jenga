@@ -1,8 +1,8 @@
 <?php
-namespace Jenga\DB\Models;
-use Jenga\DB\Managers\BasicModelManager;
-use Jenga\DB\Fields as f;
-use Jenga\Helpers;
+namespace jenga\db\models;
+use jenga\db\managers\BasicModelManager;
+use jenga\db\fields as f;
+use jenga\Helpers;
 
 const SQL_BACKEND_TYPE = 'sql';
 const MONGO_BACKEND_TYPE = 'mongo';
@@ -128,7 +128,7 @@ class IntrospectionModel {
 		$field_class_name = self::get_field_type($field_value);
 			
 		if($field_class_name !== null) {
-			$field_class_name = 'Jenga\\DB\\Fields\\' . $field_class_name;
+			$field_class_name = 'jnga\\db\\fields\\' . $field_class_name;
 			$model->$field_name = new $field_class_name($field);
 			$model->$field_name->name = $field_name;
 			$model->_meta['fields'][$field_name] = $model->$field_name;

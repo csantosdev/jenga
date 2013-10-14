@@ -1,5 +1,5 @@
 <?php
-namespace Jenga\DB\Query\SQL;
+namespace jenga\db\query\SQL;
 
 class Select {
 	

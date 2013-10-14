@@ -1,14 +1,14 @@
 <?php
-namespace Jenga\DB\Fields;
+namespace jenga\db\fields;
 
-const Field = 'Jenga\\DB\\Fields\\Field';
-const RelatedField = 'Jenga\\DB\Fields\\RelatedField';
-const IntField = 'Jenga\\DB\\Fields\\IntField';
-const PositiveIntField = 'Jenga\\DB\\Fields\\PositiveIntField';
-const CharField = 'Jenga\\DB\\Fields\\CharField';
-const TextField = 'Jenga\\DB\\Fields\\TextField';
-const ForeignKey = 'Jenga\\DB\\Fields\\ForeignKey';
-const ManyToMany = 'Jenga\\DB\\Fields\\ManyToMany';
+const Field = 'jenga\\db\\fields\\Field';
+const RelatedField = 'jenga\db\fields\\RelatedField';
+const IntField = 'jenga\db\\fields\\IntField';
+const PositiveIntField = 'jenga\db\\fields\\PositiveIntField';
+const CharField = 'jenga\db\\fields\\CharField';
+const TextField = 'jenga\db\\fields\\TextField';
+const ForeignKey = 'jenga\db\\fields\\ForeignKey';
+const ManyToMany = 'jenga\db\\fields\\ManyToMany';
 
 class Field {
 	

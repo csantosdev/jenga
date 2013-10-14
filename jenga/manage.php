@@ -71,13 +71,13 @@ function update_database_schema($classes) {
 		$reflection_class = new ReflectionClass($class);
 		$fields = $reflection_class->getDefaultProperties();
 
-		if($reflection_class->getParentClass()->getName() !== 'Jenga\DB\Models\Model')
+		if($reflection_class->getParentClass()->getName() !== 'jenga\db\Models\Model')
 			continue;
 		
 		$tables[$class] = array('fields' => array());
 		
 		foreach($fields as $field => $value) {
-			$field_type = Jenga\Helpers::get_field_type($value);
+			$field_type = jenga\Helpers::get_field_type($value);
 			
 			if(isset(Jenga::$MODEL_FIELD_DICT[$field_type])) {
 				$tables[$class]['fields'][$field] = $value;

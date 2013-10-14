@@ -1,5 +1,5 @@
 <?php
-namespace Jenga\DB\Fields;
+namespace jenga\db\fields;
 
 /* Will work when running on PHP5.5+
 const Field = Field::class;
@@ -17,18 +17,18 @@ const EmbeddedDocumentField = EmbeddedDocumentField::class;
 */
 
 // Done this way got PHP5.4 (for now)
-const Field = 'Jenga\\DB\\Fields\\Field';
-const RelatedField = 'Jenga\\DB\\Fields\\RelatedField';
-const NumberField = 'Jenga\\DB\\Fields\\NumberField';
-const IntField = 'Jenga\\DB\\Fields\\IntField';
-const PositiveIntField = 'Jenga\\DB\\Fields\\PositiveIntField';
-const CharField = 'Jenga\\DB\\Fields\\CharField';
-const TextField = 'Jenga\\DB\\Fields\\TextField';
-const BooleanField = 'Jenga\\DB\\Fields\\BooleanField';
-const ForeignKey = 'Jenga\\DB\\Fields\\ForeignKey';
-const ManyToMany = 'Jenga\\DB\\Fields\\ManyToMany';
+const Field = 'jenga\\db\\fields\\Field';
+const RelatedField = 'jenga\\db\\fields\\RelatedField';
+const NumberField = 'jenga\\db\\fields\\NumberField';
+const IntField = 'jenga\\db\\fields\\IntField';
+const PositiveIntField = 'jenga\\db\\fields\\PositiveIntField';
+const CharField = 'jenga\\db\\fields\\CharField';
+const TextField = 'jenga\\db\\fields\\TextField';
+const BooleanField = 'jenga\\db\\fields\\BooleanField';
+const ForeignKey = 'jenga\\db\\fields\\ForeignKey';
+const ManyToMany = 'jenga\\db\\fields\\ManyToMany';
 
-const EmbeddedDocumentField = 'Jenga\\DB\\Fields\\EmbeddedDocumentField';
+const EmbeddedDocumentField = 'jenga\\db\\fields\\EmbeddedDocumentField';
 
 const ArrayType = 'Array';
 const ObjectType = 'Object';

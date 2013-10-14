@@ -1,7 +1,7 @@
 <?php
-namespace Jenga\DB\Query\Builders;
-use Jenga\DB\Query\Builders\QueryBuilder;
-use Jenga\DB\Query\Query;
+namespace jenga\db\query\Builders;
+use jenga\db\query\Builders\QueryBuilder;
+use jenga\db\query\Query;
 
 class MongoQueryBuilder extends QueryBuilder {
 	

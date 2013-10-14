@@ -1,15 +1,15 @@
 <?php
-namespace Jenga\Db\Models;
-use Jenga\Db\Managers\MongoModelManager;
+namespace jenga\db\Models;
+use jenga\db\managers\MongoModelManager;
 
-use Jenga\Db\Connections\Connection;
-use Jenga\Db\Connections\ConnectionTypeFactory;
+use jenga\db\connections\Connection;
+use jenga\db\connections\ConnectionTypeFactory;
 
-use Jenga\Db\Managers\SQLModelManager;
+use jenga\db\managers\SQLModelManager;
 
-use Jenga\Db\Managers\BasicModelManager;
-use Jenga\Db\Fields as f;
-use Jenga\Helpers;
+use jenga\db\managers\BasicModelManager;
+use jenga\db\fields as f;
+use jenga\Helpers;
 
 class Model {
 	
@@ -148,7 +148,7 @@ class IntrospectionModel {
 		$field_class_name = self::get_field_type($field_value);
 			
 		if($field_class_name !== null) {
-			$field_class_name = 'Jenga\\DB\\Fields\\' . $field_class_name;
+			$field_class_name = 'jenga\\db\\fields\\' . $field_class_name;
 			$model->$field_name = new $field_class_name($field);
 			$model->$field_name->name = $field_name;
 			$model->_meta['fields'][$field_name] = $model->$field_name;

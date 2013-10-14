@@ -1,5 +1,5 @@
 <?php
-namespace Jenga\DB\Query\Builders;
+namespace jenga\db\query\Builders;
 
 abstract class QueryBuilder {
 

@@ -1,5 +1,5 @@
 <?php
-use Jenga\Conf\Settings;
+use jenga\conf\Settings;
 
 $conf = [
 	'DOMAIN' => 'local.icandyclothing.com',

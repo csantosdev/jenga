@@ -1,5 +1,5 @@
 <?php
-namespace Jenga\Http;
+namespace jenga\http;
 
 class Request {
 	

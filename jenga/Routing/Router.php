@@ -1,6 +1,6 @@
 <?php
-namespace Jenga\Routing;
-use Jenga\Http\Request;
+namespace jenga\Routing;
+use jenga\http\Request;
 
 class Router {
 

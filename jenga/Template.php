@@ -1,7 +1,7 @@
 <?php
-namespace Jenga\Template;
-use Jenga\Http\Response;
-use Jenga\Conf\Settings;
+namespace jenga\Template;
+use jenga\http\Response;
+use jenga\conf\Settings;
 
 abstract class BaseTemplate {
 

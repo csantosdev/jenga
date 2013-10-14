@@ -1,5 +1,5 @@
 <?php
-namespace Jenga\DB\Connections;
+namespace jenga\db\connections;
 
 class MySQL extends Connection {
 

@@ -1,5 +1,5 @@
 <?php
-namespace Jenga\Conf;
+namespace jenga\conf;
 
 class Settings {
 	

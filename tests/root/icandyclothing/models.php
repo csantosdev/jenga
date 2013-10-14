@@ -1,6 +1,6 @@
 <?php
 namespace icandyclothing;
-use Jenga\Db\Models\Model;
+use jenga\db\models\Model;
 
 class product extends Model {
 	

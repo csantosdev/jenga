@@ -1,5 +1,5 @@
 <?php
-namespace Jenga\DB\Connections;
+namespace jenga\db\connections;
 
 class Mongo extends Connection {
 

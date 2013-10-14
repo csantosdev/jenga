@@ -1,7 +1,7 @@
 <?php
 define('JENGA_APP_PATH', __DIR__ . '/' . $_SERVER['JENGA_APP']);
-define('JENGA_PATH', $_SERVER['JENGA_LIBRARY_PATH'] . '/Jenga');
-define('JENGA_LIBS_PATH', JENGA_PATH . '/Libs');
+define('JENGA_PATH', $_SERVER['JENGA_LIBRARY_PATH'] . '/jenga');
+define('JENGA_LIBS_PATH', JENGA_PATH . '/libs');
 
 if(!file_exists(JENGA_APP_PATH . '/settings.php'))
 	exit("Could not find settings file: " . JENGA_APP_PATH . '/settings.php');
@@ -45,8 +45,8 @@ spl_autoload_register(function ($class) {
     echo '<br>' . $filename;
 });
 
-// Load in Fields.php to allow aliasing an entire namespace. ie: use Jenga\Db\Fields as f;
-require $_SERVER['JENGA_LIBRARY_PATH'] . '/Jenga/Db/Fields/Fields.php';
+// Load in Fields.php to allow aliasing an entire namespace. ie: use jenga\db\fields as f;
+require $_SERVER['JENGA_LIBRARY_PATH'] . '/jenga/db/fields/fields.php';
 require JENGA_APP_PATH . '/settings.php';
 
 use Jenga\Conf\Settings;

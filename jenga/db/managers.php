@@ -1,6 +1,6 @@
 <?php
-namespace Jenga\DB\Managers;
-use Jenga\DB\Query\QuerySet;
+namespace jenga\db\managers;
+use jenga\db\query\QuerySet;
 
 class BasicModelManager {
 	

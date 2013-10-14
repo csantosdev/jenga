@@ -1,7 +1,7 @@
 <?php
-namespace Jenga\DB\Query;
-use Jenga\DB\Models\IntrospectionModel;
-use Jenga\DB\Fields as f;
+namespace jenga\db\Query;
+use jenga\db\Models\IntrospectionModel;
+use jenga\db\fields as f;
 
 class Query {
 	

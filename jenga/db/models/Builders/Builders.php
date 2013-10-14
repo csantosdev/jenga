@@ -1,13 +1,13 @@
 <?php
-namespace Jenga\Db\Models\Builders;
+namespace jenga\db\Models\Builders;
 
-//use Jenga\Db\Query\Builders\SQLQueryBuilder;
-//use Jenga\Db\Query\Builders\MongoQueryBuilder;
-use Jenga\Db\Fields as f;
-use Jenga\Db\Connections\ConnectionFactory;
-use Jenga\Db\Managers\MongoModelManager;
-use Jenga\Db\Query\QuerySet;
-use Jenga\Db\Query\Query;
+//use jenga\db\query\Builders\SQLQueryBuilder;
+//use jenga\db\query\Builders\MongoQueryBuilder;
+use jenga\db\fields as f;
+use jenga\db\connections\ConnectionFactory;
+use jenga\db\managers\MongoModelManager;
+use jenga\db\query\QuerySet;
+use jenga\db\query\Query;
 
 abstract class ModelBuilder {
 	

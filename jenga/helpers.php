@@ -1,7 +1,7 @@
 <?php
 namespace Jenga;
-use Jenga\DB\Fields as Fields;
-use Jenga\DB\Models as models;
+use jenga\db\fields as f;
+use jenga\db\Models as models;
 
 class Helpers {
 	
@@ -46,7 +46,7 @@ class Helpers {
 		try {
 			$reflection = self::get_model_reflection($class_name);
 			
-			if($reflection->isSubclassOf(models\Field))
+			if($reflection->isSubclassOf(f\Field))
 				return $class_name;
 			else
 				return null;
@@ -69,7 +69,7 @@ class Helpers {
 			$field_class_name = self::get_field_type($field);
 			
 			if($field_class_name !== null) {
-				$field_class_name = 'Jenga\\DB\\Fields\\' . $field_class_name;
+				$field_class_name = 'jenga\\db\\fields\\' . $field_class_name;
 				$model->$field_name = new $field_class_name($field);
 				$model->$field_name->name = $field_name;
 				$model->_meta['fields'][$field_name] = $model->$field_name;
@@ -88,7 +88,7 @@ class Helpers {
 		$field_class_name = self::get_field_type($field_value);
 			
 		if($field_class_name !== null) {
-			$field_class_name = 'Jenga\\DB\\Fields\\' . $field_class_name;
+			$field_class_name = 'jenga\\db\\fields\\' . $field_class_name;
 			$model->$field_name = new $field_class_name($field);
 			$model->$field_name->name = $field_name;
 			$model->_meta['fields'][$field_name] = $model->$field_name;

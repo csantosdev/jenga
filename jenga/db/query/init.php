@@ -1,15 +1,15 @@
 <?php
-namespace Jenga\DB\Query;
-use Jenga\DB\Models\MongoModelBuilder;
+namespace jenga\db\Query;
+use jenga\db\Models\MongoModelBuilder;
 
-use Jenga\DB\Models\SQLModelBuilder;
+use jenga\db\Models\SQLModelBuilder;
 
-use Jenga\Helpers;
-use Jenga\DB\Fields as fields;
-use Jenga\DB\Models as models;
-use Jenga\DB\Models\IntrospectionModel;
-use Jenga\DB\Query\SQL\SQLQueryBuilder;
-use Jenga\DB\Query\Query;
+use jenga\Helpers;
+use jenga\db\fields as fields;
+use jenga\db\models as models;
+use jenga\db\models\IntrospectionModel;
+use jenga\db\query\SQL\SQLQueryBuilder;
+use jenga\db\query\Query;
 
 abstract class BaseQuerySet {
 

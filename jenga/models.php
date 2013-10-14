@@ -1,7 +1,7 @@
 <?php
-use Jenga\DB\Models\Model;
-use Jenga\DB\Models\MongoModel;
-use Jenga\DB\Fields as f;
+use jenga\db\Models\Model;
+use jenga\db\Models\MongoModel;
+use jenga\db\fields as f;
 
 /**
  * Either require_once or define your models here

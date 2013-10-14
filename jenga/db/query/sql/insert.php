@@ -1,5 +1,5 @@
 <?php
-namespace Jenga\DB\Query\Compilers\SQL;
+namespace jenga\db\query\Compilers\SQL;
 
 class Insert {
 	

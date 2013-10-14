@@ -1,6 +1,6 @@
 <?php
-namespace Jenga\DB\Query\SQL;
-use Jenga\DB\Query\QueryBuilder;
+namespace jenga\db\query\SQL;
+use jenga\db\query\QueryBuilder;
 
 class SQLQueryBuilder extends QueryBuilder {
 	

@@ -1,5 +1,5 @@
 <?php
-namespace Jenga\DB\Query;
+namespace jenga\db\Query;
 
 class Create {
 	
