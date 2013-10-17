@@ -1,7 +1,7 @@
 <?php
 define('JENGA_APP_PATH', __DIR__ . '/' . $_SERVER['JENGA_APP']);
 define('JENGA_PATH', $_SERVER['JENGA_LIBRARY_PATH'] . '/jenga');
-define('JENGA_LIBS_PATH', JENGA_PATH . '/libs');
+define('JENGA_BASE_PATH', __DIR__);
 
 if(!file_exists(JENGA_APP_PATH . '/settings.php'))
 	exit("Could not find settings file: " . JENGA_APP_PATH . '/settings.php');
