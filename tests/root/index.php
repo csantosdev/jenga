@@ -46,7 +46,7 @@ spl_autoload_register(function ($class) {
 });
 
 // Load in Fields.php to allow aliasing an entire namespace. ie: use jenga\db\fields as f;
-require $_SERVER['JENGA_LIBRARY_PATH'] . '/jenga/db/fields/fields.php';
+require_once $_SERVER['JENGA_LIBRARY_PATH'] . '/jenga/db/fields/fields.php';
 require JENGA_APP_PATH . '/settings.php';
 
 use jenga\conf\Settings;
@@ -65,6 +65,7 @@ foreach(Settings::get('INSTALLED_APPS') as $app) {
         require $template_tags; }
 }
 
+require JENGA_APP_PATH . '/models.php';
 require JENGA_APP_PATH . '/controllers.php';
 
 use jenga\routing\Router;

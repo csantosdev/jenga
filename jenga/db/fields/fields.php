@@ -21,12 +21,14 @@ const Field = 'jenga\\db\\fields\\Field';
 const RelatedField = 'jenga\\db\\fields\\RelatedField';
 const NumberField = 'jenga\\db\\fields\\NumberField';
 const IntField = 'jenga\\db\\fields\\IntField';
+const FloatField = 'jenga\\db\\fields\\FloatField';
 const PositiveIntField = 'jenga\\db\\fields\\PositiveIntField';
 const CharField = 'jenga\\db\\fields\\CharField';
 const TextField = 'jenga\\db\\fields\\TextField';
 const BooleanField = 'jenga\\db\\fields\\BooleanField';
 const ForeignKey = 'jenga\\db\\fields\\ForeignKey';
 const ManyToMany = 'jenga\\db\\fields\\ManyToMany';
+const FileField = 'jenga\\db\\fields\\FileField';
 
 const EmbeddedDocumentField = 'jenga\\db\\fields\\EmbeddedDocumentField';
 
@@ -160,4 +162,22 @@ class PositiveIntField extends IntField {
 
 class EmbeddedDocumentField extends Field {
 	
+}
+
+class FileField extends Field {
+	
+	public $filename;
+	public $full_path;
+	
+	// Check file exists on filesystem
+	
+}
+
+class ImageField extends FileField {
+	
+	public function __construct($args) {
+		
+	}
+	
+	// Check if image format
 }

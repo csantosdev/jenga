@@ -60,7 +60,10 @@ class Model {
 	public function get_table_name() {
 		if(!empty($this->_meta['table_name']))
 			return $this->_meta['table_name'];
-		return strtolower(get_called_class());
+		$class = strtolower(get_called_class());
+		if(strpos($class, '\\models\\')) // class is within a namespace
+			$class = str_replace(['\\models', '\\'], ['','_'], $class);
+		return $class;
 	}
 	
 	/**

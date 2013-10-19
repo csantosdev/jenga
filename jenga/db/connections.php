@@ -180,7 +180,14 @@ class ConnectionFactory {
 				
 			case Connection::MONGO_BACKEND_TYPE:
 				$str = sprintf('mongodb://%s:%d',$config['host'], $config['port']);
-				$options = ['username' => $config['user'], 'password' => $config['pass'], 'db' => $config['name']];
+				$options = [];
+				if(isset($config['user']))
+					$options['username'] = $config['user'];
+				if(isset($config['pass']))
+					$options['password'] = $config['pass'];
+				if(isset($config['name']))
+					$options['db'] = $config['name'];
+				
 				$client = new \MongoClient($str, $options);
 				$connection = $client->selectDB($config['name']);
 				break;

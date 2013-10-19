@@ -107,7 +107,7 @@ class MongoModelManager extends ModelManager {
 		$collection = $db->selectCollection($model->get_table_name());
 		try {
 			$collection->save($doc);
-
+			echo ' SAVED ';
 		} catch(Exception $e) {
 			echo "Could not save model: ";
 			var_dump($doc);
