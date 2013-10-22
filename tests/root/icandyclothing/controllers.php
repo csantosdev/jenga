@@ -5,11 +5,15 @@ use icandyclothing\models\Image;
 use icandyclothing\models\Product;
 
 function index(Request $request) {
-	$product = new Product();
+	/**
+	*$product = new Product();
 	$product->name = 'Ecko T-Shirt';
 	$product->price = 10.00;
 	$product->slug = 'my-product';
-	$product->save();
+	*/
+	$product = Product::objects()->filter(['_id' => new \MongoId('52640aa7bd3a03b5048b4567')]);
+	count($product);
+	var_dump($product);
 	BasicTemplate::render('index.html', ['name'=>'Chris Santos']);
 }
 
