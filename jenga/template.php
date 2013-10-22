@@ -54,7 +54,7 @@ class BasicTemplate extends BaseTemplate {
 	}
 
 	protected static function init() {
-			require $_SERVER['JENGA_LIBRARY_PATH'] . '/smarty/Smarty.class.php';
+			require $_SERVER['JENGA_LIBRARY_PATH'] . '/Smarty/libs/Smarty.class.php';
 			self::$engine = new \Smarty();
 			self::$engine->debugging = Settings::get('TEMPLATE_DEBUG');
 			self::$engine->setTemplateDir(Settings::get('TEMPLATE_DIR'));

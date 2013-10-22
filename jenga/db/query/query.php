@@ -1,15 +1,14 @@
 <?php
 namespace jenga\db\query;
-use jenga\db\Models\MongoModelBuilder;
 
-use jenga\db\Models\SQLModelBuilder;
-
-use jenga\Helpers;
 use jenga\db\fields as fields;
 use jenga\db\models as models;
+use jenga\db\models\builders\MongoModelBuilder;
 use jenga\db\models\IntrospectionModel;
 use jenga\db\query\SQL\SQLQueryBuilder;
 use jenga\db\query\Query;
+use jenga\db\connections\Connection;
+use jenga\db\connections\ConnectionFactory;
 
 abstract class BaseQuerySet {
 
@@ -247,7 +246,7 @@ class QuerySet implements \Countable, \Iterator, \ArrayAccess {
 		$fields = array();
 		$wheres = array();
 		
-		$backend_type = $this->model->_meta['properties']['backend_type'];
+		$backend_type = ConnectionFactory::get($this->model->_meta['db_config']);
 		$builder = ModelBuilderFactory::get($backend_type);
 		
 		$current_model = $this->model;
@@ -458,14 +457,14 @@ class ModelBuilderFactory {
 	
 	public static function get($model_backend_type) {
 		switch($model_backend_type) {
-			case Connection::SQL_BACKEND_TYPE:
-				return new SQLModelBuilder();
+			//case Connection::SQL_BACKEND_TYPE:
+				//return new SQLModelBuilder();
 				
 			case Connection::MONGO_BACKEND_TYPE:
 				return new MongoModelBuilder();
 				
 			default:
-				return new SQLModelBuilder();
+				return new MongoModelBuilder();
 		}
 	}
 }

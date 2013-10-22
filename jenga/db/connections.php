@@ -1,6 +1,5 @@
 <?php
 namespace jenga\db\connections;
-use jenga\Helpers;
 use jenga\conf\Settings;
 
 abstract class Connection {

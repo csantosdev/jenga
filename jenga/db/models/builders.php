@@ -1,6 +1,7 @@
 <?php
-namespace jenga\db\Models;
-use jenga\db\query\Builders\SQLQueryBuilder;
+namespace jenga\db\models\builders;
+use jenga\db\query\builders\SQLQueryBuilder;
+use jenga\db\query\builders\MongoQueryBuilder;
 
 abstract class ModelBuilder {
 	
