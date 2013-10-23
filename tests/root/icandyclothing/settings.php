@@ -16,8 +16,6 @@ $conf = [
 			'type' => Connection::MONGO_BACKEND_TYPE,
 			'host' => 'localhost',
 			'name' => 'local',
-			'user' => null,
-			'pass' => null,
 			'port' => 27017
 		]
 	],

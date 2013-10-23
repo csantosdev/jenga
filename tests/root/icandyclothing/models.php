@@ -6,7 +6,7 @@ use jenga\db\fields as f;
 
 class Image extends MongoModel {
 	
-	public $file = [f\ImageField, 'model'=>'jenga\\files\\ImageFile'];
+	public $file = [f\ImageField, 'model'=>'jenga\files\ImageFile'];
 	
 	public $title = [f\CharField];
 	public $alt = [f\CharField];
@@ -15,7 +15,9 @@ class Image extends MongoModel {
 
 class Category extends MongoModel {
 	public $name = [f\CharField];
-	public $parent = [f\ForeignKey, 'model'=>'Category'];
+	public $parent = [f\ForeignKey, 'model'=> Category::class, 'null'=>true];
+	
+	public $_meta = ['db_config' => 'mongo'];
 }
 
 class Product extends MongoModel {
@@ -23,7 +25,7 @@ class Product extends MongoModel {
 	public $name = [f\CharField];
 	public $price = [f\FloatField];
 	public $slug = [f\CharField];
-	public $categories = [f\ManyToMany, 'model'=>'Category'];
+	public $categories = [f\EmbeddedDocumentField, 'model'=> Category::class];
 	
 	public $_meta = ['db_config' => 'mongo'];
 	

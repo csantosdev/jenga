@@ -194,7 +194,6 @@ class MongoModelManager extends ModelManager {
 		
 			} else if($field[0] == f\EmbeddedDocumentField) {
 		
-				$type = f\ObjectType;
 				$models = [];
 				
 				if(isset($field['model']))
@@ -202,10 +201,10 @@ class MongoModelManager extends ModelManager {
 				else if(isset($field['models']))
 					$models = $field['models'];
 				
-				if(isset($field['type']) && $field['type'] == f\ArrayType)
-					$type = f\ArrayType;
+				if(!isset($field['type']))
+					throw new \Exception($model . " must provide a 'type' option for field EmbeddedDocumentField");
 				
-				switch($type) {
+				switch($field['type']) {
 					
 					case f\ObjectType:
 						$value = $this->create_document($embedded_model);

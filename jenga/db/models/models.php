@@ -104,7 +104,7 @@ class IntrospectionModel {
 			$reflection = new \ReflectionClass($model_name);
 			$properties = $reflection->getDefaultProperties();
 			$reflection->fields = array();
-			$reflection->table_name = strtolower($model_name);
+			//$reflection->table_name = strtolower($model_name);
 			
 			if(isset($properties['_meta']))
 				$reflection->_meta = $properties['_meta'];
@@ -116,10 +116,26 @@ class IntrospectionModel {
 					$reflection->fields[$field_name] = $field;
 			}
 			
+			// Setup the table name
+			$class = strtolower($model_name);
+			if(strpos($class, '\\models\\')) // class is within a namespace
+				$class = str_replace(['\\models', '\\'], ['','_'], $class);
+			$reflection->table_name = $class;
+			
 			self::$models[$model_name] = $reflection;
 		}
 			
 		return self::$models[$model_name];
+	}
+	
+	/* Condense this some how. Two copies are in use currently. */
+	public static function get_table_name() {
+		if(!empty($this->_meta['table_name']))
+			return $this->_meta['table_name'];
+		$class = strtolower(get_called_class());
+		if(strpos($class, '\\models\\')) // class is within a namespace
+			$class = str_replace(['\\models', '\\'], ['','_'], $class);
+		return $class;
 	}
 	
 	public static function instantiate($model_name) {
