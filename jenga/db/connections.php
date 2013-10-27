@@ -2,200 +2,112 @@
 namespace jenga\db\connections;
 use jenga\conf\Settings;
 
+const MYSQL_CONNECTION_TYPE = 'jenga\db\connections\MysqlConnection';
+const MONGO_CONNECTION_TYPE = 'jenga\db\connections\MongoConnection';
+
 abstract class Connection {
-	
-	const SQL_BACKEND_TYPE = 'sql';
-	const MONGO_BACKEND_TYPE = 'mongo';
-	
-	const SQL_ADD_TABLE = 'CREATE TABLE %s (%s int(%d) %s %s, PRIMARY KEY (%s)) ENGINE=%s DEFAULT CHARSET=%s AUTO_INCREMENT=1 ;';
-	const SQL_ALTER_TABLE = 'ALTER TABLE %s ';
-	const SQL_ALTER_COLUMN_SET_NULL = 'MODIFY COLUMN %s %s SET NULL';
-	const SQL_ALTER_COLUMN_SET_NOT_NULL = 'ALERT COLUMN %s SET NOT NULL';
-	
-	const SQL_PRIMARY_KEY = 'PRIMARY KEY (%s)';
-	const SQL_ENGINE = 'ENGINE=%s';
-	const SQL_DEFAULT_CHARSET = 'DEFAULT CHARSET=%s';
-	const SQL_AUTOINCREMENT = 'AUTO_INCREMENT=%d';
-	
-	/**
-	 * Object resource that connects to the actual database.
-	 * @var resource
-	 */
-	protected $resource;
-	protected $connected = false;
-	
-	public abstract function connect($host, $user, $pass, $database);
-	
-	public abstract function disconnect();
-	
-	
-	public function add_table($args) {
-		$model = Helpers::instantiate_skeleton_model($args['model']);
-		$values = array(
-			'table_name' => $model->get_table_name(),
-			'column_name' => 'id',
-			'max_length' => 11,
-			'null' => 'NOT NULL',
-			'auto_increment' => 'AUTO_INCREMENT',
-			'primary_key' => 'id',
-			'engine' => 'MyISAM',
-			'default_charset' => 'utf8'
-		);
-		$sql = vsprintf(self::SQL_ADD_TABLE, $values);
-		
-		echo $sql;
-		
-		try {
-			$statement = $this->resource->prepare($sql);
-			$success = $statement->execute();
-				
-			if(!$success) {
-				var_dump($statement->errorInfo());
-				exit();
-			}
-				
-		} catch(Exception $e) {
-			exit('Could not add table. ' . $e->getMessage());
-		}
-	}
-	
-	public abstract function add_field($name, $type);
-	
-	public abstract function add_index();
-	
-	public abstract function remove_table();
-	
-	public abstract function remove_field();
-	
-	public abstract function remove_index();
-	
-	protected abstract function get_resource();
-	
+
+    private static $connections = [];
+    protected $query_builder;
+    protected $model_builder;
+
+    protected $db;
+    protected $options;
+
+    //public function getModelManager();
+    abstract public function getQueryBuilder();
+    abstract public function getModelBuilder();
+    abstract protected function createDatabaseObject();
+
+    public function __construct($options) {
+        $this->options = $options;
+    }
+
+    /**
+     * Returns actual driver objects for that database. ie: MongoClient, MySQLi object
+     * @return mixed
+     */
+    public static function get($config_name) {
+
+        $databases = Settings::get('DATABASES');
+
+        if(!isset($databases[$config_name]))
+            throw new \Exception("Database configuration name '$config_name' does not exist. Check your app's DATABASES setting in the settings.php file.");
+
+        if(isset(self::$connections[$config_name]))
+            return self::$connections[$config_name];
+
+        $db_config = $databases[$config_name];
+        $db_connection_class = $db_config['type'];
+
+        $connection = $db_connection_class($db_config);
+        return self::$connections[] = $connection;
+    }
+
+    public function getDatabaseObject() {
+
+        if(isset($this->id))
+            return $this->db;
+
+        return $this->db = $this->createDatabaseObject();
+    }
 }
 
-class PDO extends Connection {
-	
-	public function connect($host, $user, $pass, $database) {
-		
-		if($this->resource == null) {
-			$config = sprintf('mysql:host=%s;dbname=%s', $host, $database);
-			try {
-				$this->resource = new \PDO($config, $user, $pass);
-				$this->connected = true;
-				
-			} catch(PDOException $e) {
-				$this->connected = false;
-				exit('Could not connect to database via PDO. ' . $e->getMessage());
-			}
-		}
-	}
-	
-	public function disconnect() {
-		$this->resource = null;
-	}
-	
-	public function add_table($model) {
-		
-		parent::add_table($model);
-		return;
-		try {
-			$statement = $this->resource->prepare('CREATE TABLE :name (');
-			$success = $statement->execute(array(':name'=>$name));
-			
-			if(!$success) {
-				var_dump($statement->errorInfo());
-				exit();
-			}
-			
-		} catch(Exception $e) {
-			exit('Could not add table. ' . $e->getMessage());
-		}
-	}
-	
-	public function add_field($name, $type) {
-		
-	}
-	
-	public function add_index() {
-		
-	}
-	
-	public function remove_table() {
-		
-	}
-	
-	public function remove_field() {
-		
-	}
-	
-	public function remove_index() {
-		
-	}
-	
-	public function save_model($model) {
-		
-		// Loop fields
-		// if FK -> save in separate table
-		// if M2M -> save in separate table in forloop
-		
-	}
-	
-	protected function get_resource() {}
+class MysqlConnection extends Connection {
+
+    public function getQueryBuilder() {
+
+        if(isset(self::$query_builder))
+            return self::$query_builder;
+
+        return self::$query_builder = new jenga\db\query\builders\SQLQueryBuilder();
+    }
+
+    public function getModelBuilder() {
+
+        if(isset(self::$model_builder))
+            return self::$model_builder;
+
+        return self::$model_builder = new jenga\db\models\builders\SQLModelBuilder();
+    }
+
+    public function createDatabaseObject() {
+        throw new \Exception('MySQL DB Object is not implemented yet.');
+    }
 }
 
-class ConnectionTypeFactory {
-	
-	public static function get($db_config) {
-		
-		$DATABASES = Settings::get('DATABASES');
+class MongoConnection extends Connection {
 
-		if(!isset($DATABASES[$db_config]))
-			throw new \Exception('There no database configuration named ' . $db_config);
-			
-		return $DATABASES[$db_config];
-	}
-}
+    public function getQueryBuilder() {
 
-class ConnectionFactory {
-	
-	private static $connections = [];
-	
-	public static function get($db_backend_config_name) {
-		
-		$DATABASES = Settings::get('DATABASES');
+        if(isset(self::$query_builder))
+            return self::$query_builder;
 
-		if(isset(self::$connections[$db_backend_config_name]))
-			return self::$connections[$db_backend_config_name];
-			
-		if(!isset($DATABASES[$db_backend_config_name]))
-			throw new \Exception('There no database configuration named ' . $db_backend_config_name . ' in your settings file.');
-		
-		$config = $DATABASES[$db_backend_config_name];
-		
-		switch($config['type']) {
-			case Connection::SQL_BACKEND_TYPE:
-				$connection = new PDO();
-				break;
-				
-			case Connection::MONGO_BACKEND_TYPE:
-				$str = sprintf('mongodb://%s:%d',$config['host'], $config['port']);
-				$options = [];
-				if(isset($config['user']))
-					$options['username'] = $config['user'];
-				if(isset($config['pass']))
-					$options['password'] = $config['pass'];
-				if(isset($config['name']))
-					$options['db'] = $config['name'];
-				
-				$client = new \MongoClient($str, $options);
-				$connection = $client->selectDB($config['name']);
-				break;
-				
-			default:
-				throw new \Exception('There is no database connection type: ' . $config['type']);
-				break;
-		}
-		
-		return self::$connections[$db_backend_config_name] = $connection;
-	}
+        return self::$query_builder = new jenga\db\query\builders\MongoQueryBuilder();
+    }
+
+    public function getModelBuilder() {
+
+        if(isset(self::$model_builder))
+            return self::$model_builder;
+
+        return self::$model_builder = new jenga\db\models\builders\MongoModelBuilder();
+    }
+
+    public function createDatabaseObject() {
+
+        $conf = $this->options;
+
+        $str = sprintf('mongodb://%s:%d',$conf['host'], $conf['port']);
+        $options = [];
+        if(isset($conf['user']))
+            $options['username'] = $conf['user'];
+        if(isset($conf['pass']))
+            $options['password'] = $conf['pass'];
+        if(isset($conf['name']))
+            $options['db'] = $conf['name'];
+
+        $client = new \MongoClient($str, $options);
+        return $client->selectDB($conf['name']);
+    }
 }

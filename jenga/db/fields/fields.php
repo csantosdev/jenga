@@ -71,10 +71,25 @@ class Field {
 			return true;
 		return false;
 	}
+
+    /**
+     * Called when the model builder is building the model object.
+     *
+     * @param mixed $value
+     */
+    public function set_value($model, $field_name, $field_value, $func=null) {
+        $model->$field_name = $field_value;
+    }
+
+    public function getDefaultValue() {
+        return null;
+    }
 }
 
 class NumberField extends Field {
 	public $max_length = 11;
+
+    public function $
 }
 
 class RelatedField extends Field {

@@ -12,7 +12,7 @@ function index(Request $request) {
 	$product->slug = 'my-product';
 	$product->save();
 	*/
-	$product = Product::objects()->get(['_id' => new MongoId('5267077fff0a769f0f8b4567')]);
+	$product = Product::objects()->get(['_id' => new MongoId('52640aa7bd3a03b5048b4567')]);
 	$category = new Category();
 	$category->name = 'Shoes';
 	$category->save();

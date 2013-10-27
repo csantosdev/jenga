@@ -25,7 +25,7 @@ class Product extends MongoModel {
 	public $name = [f\CharField];
 	public $price = [f\FloatField];
 	public $slug = [f\CharField];
-	public $categories = [f\EmbeddedDocumentField, 'model'=> Category::class];
+	public $categories = [f\EmbeddedDocumentField, 'model'=> Category::class, 'type' => f\ArrayType];
 	
 	public $_meta = ['db_config' => 'mongo'];
 	

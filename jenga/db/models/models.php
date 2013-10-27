@@ -1,5 +1,8 @@
 <?php
 namespace jenga\db\models;
+
+use jenga\db\models\reflection\Reflection;
+
 use jenga\db\models\managers\MongoModelManager;
 use jenga\db\models\managers\SQLModelManager;
 
@@ -12,66 +15,79 @@ use jenga\Helpers;
 
 class Model {
 	
-	public $id = array(f\PositiveIntField);
-	public $_meta = array(
-		'db_config' => 'default');
-	
-	protected $manager;
-	private $backend_config;
-	
-	/**
-	 * Set any Jenga fields to null.
-	 */
-	public function __construct() {
-		
-		$class_name = get_class($this);
-		$reflection = IntrospectionModel::get($class_name);
+	public $id = [f\PositiveIntField];
+	public $_meta = [];
 
-		foreach($reflection->fields as $field_name => $field) {
-			
-			// Eventually have this automatically set when you create a reflection class
-			$field_config = $field;
-			$field = new \ReflectionClass($field[0]);
-			
-			if($field->getName() == f\CharField || $field->isSubclassOf(f\CharField)) {
-				if(isset($field_config['default']))
-					$this->$field_name = $field_config['default'];
-				else
-					$this->$field_name = null;
-			}
-					
-			else if($field->getName() == f\NumberField || $field->isSubclassOf(f\NumberField))
-				$this->$field_name = null;
-			
-			else
-				$this->$field_name = null;
-			
-		}
-		
-		$backend_config = ConnectionTypeFactory::get($this->_meta['db_config']);
-		$this->backend_config = &$backend_config;
-		$this->manager = new SQLModelManager($class_name);
+    public function __construct() {
+
+        $reflection_model = Reflection::getModel(get_class($this));
+        $fields = $reflection_model->getFields();
+
+        foreach($fields as $field_name => $reflection_field)
+            $this->$field_name = $reflection_field->getDefaultVale();
 	}
 	
 	public static function objects() {
 		return new SQLModelManager(get_called_class()); // FIND BETTER WAY TO DO THIS
 	}
 	
-	public function get_table_name() {
-		if(!empty($this->_meta['table_name']))
-			return $this->_meta['table_name'];
-		$class = strtolower(get_called_class());
-		if(strpos($class, '\\models\\')) // class is within a namespace
-			$class = str_replace(['\\models', '\\'], ['','_'], $class);
-		return $class;
-	}
-	
+
 	/**
 	 * Validate fields and then pass to the db object to save
 	 */
 	public function save() {
 		$this->manager->save($this);
 	}
+
+    private function getManager() {
+        if(!isset($this->manager)) {
+
+        }
+        return $this->manager;
+    }
+
+
+    public static function get($model_name) {
+
+        if(!isset(self::$models[$model_name])) {
+            $reflection = new \ReflectionClass($model_name);
+            $properties = $reflection->getDefaultProperties();
+            $reflection->fields = array();
+            //$reflection->table_name = strtolower($model_name);
+
+            if(isset($properties['_meta']))
+                $reflection->_meta = $properties['_meta'];
+
+            foreach($properties as $field_name => $field) {
+                $field_class_name = self::get_field_type($field);
+
+                if($field_class_name !== null)
+                    $reflection->fields[$field_name] = $field;
+            }
+
+            // Setup the table name
+            $class = strtolower($model_name);
+            if(strpos($class, '\\models\\')) // class is within a namespace
+                $class = str_replace(['\\models', '\\'], ['','_'], $class);
+            $reflection->table_name = $class;
+
+            self::$models[$model_name] = $reflection;
+        }
+
+        return self::$models[$model_name];
+    }
+
+    /* Condense this some how. Two copies are in use currently. */
+    public static function get_table_name() {
+        if(!empty($this->_meta['table_name']))
+            return $this->_meta['table_name'];
+        $class = strtolower(get_called_class());
+        if(strpos($class, '\\models\\')) // class is within a namespace
+            $class = str_replace(['\\models', '\\'], ['','_'], $class);
+        return $class;
+    }
+
+
 }
 
 
@@ -137,24 +153,6 @@ class IntrospectionModel {
 			$class = str_replace(['\\models', '\\'], ['','_'], $class);
 		return $class;
 	}
-	
-	public static function instantiate($model_name) {
-		$reflection = self::get($model_name);
-		$model = $reflection->newInstance(true);
-		foreach($reflection->fields as $col_name => $field) {
-			$field = new \ReflectionClass($field[0]);
-			
-			
-			if($field->getNamespaceName() == f\CharField || $field->isSubclassOf(f\CharField)) {
-				$model->$col_name = null;
-					
-			} else if($field->getNamespaceName() == f\NumberField || $field->isSubclassOf(f\NumberField)) {
-				$model->$col_name = null;
-			}
-		}
-		return $model;
-	}
-	
 	
 	/**
 	 *

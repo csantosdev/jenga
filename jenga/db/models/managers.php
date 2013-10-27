@@ -8,6 +8,7 @@ use jenga\db\fields as f;
 class BasicModelManager {
 	
 	private $model; // string
+    private $query_builder;
 	
 	public function __construct($model) {
 		$this->model = $model;
@@ -24,6 +25,8 @@ class BasicModelManager {
 			throw new \Exception('Could not pull object from a ' .  $model . ' Query.');
 		return $qs[0];
 	}
+
+    protected function
 }
 
 abstract class ModelManager {
