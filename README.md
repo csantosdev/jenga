@@ -15,4 +15,6 @@ In the works:
 
 
 Example:
-```Comment::objects()->filter(['post.comments.active' => true])```
+```
+Comment::objects()->filter(['post.comments.active' => true])
+```
