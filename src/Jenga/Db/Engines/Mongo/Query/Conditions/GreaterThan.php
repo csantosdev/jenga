@@ -1,17 +1,17 @@
 <?php
 namespace Jenga\Db\Engines\Mongo\Query\Conditions;
 /**
- * A mongo equals query segment.
+ * A mongo greater than query segment.
  *
  * @author Chris Santos
  */
-class Equals extends Base {
+class GreaterThan extends base {
 
     /**
      * @inheritdoc
      */
     public function toQuery() {
 
-        return array($this->field => $this->value);
+        return array($this->field => array('$gt' => $this->value));
     }
 }
