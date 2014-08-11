@@ -17,4 +17,11 @@ In the works:
 ## Example:
 ```
 Comment::objects()->filter(['post.comments.active' => true])
+// Nested Document
+Comment::objects()->filter([
+	'meta' => F::Nested([
+		'name' => 'ip_address',
+		'value' => '127.0.0.1'
+	])
+);
 ```
