@@ -7,36 +7,51 @@ namespace Jenga\Db\Engines\Mongo\Query\Conditions;
  */
  class ConditionFactory {
 
-     public static function get($name, $value, $operator = null) {
+     public static function get($field, $value, $operator = null) {
+
+         if(is_a($value, 'Jenga\Db\Query\Filters\Filter')) {
+
+             switch(get_class($value)) {
+
+                 case 'Jenga\Db\Query\Filters\Field':
+                     break;
+
+                 case 'Jenga\Db\Query\Filters\Nested':
+                     return new Nested($field, $value, $operator);
+
+                 default:
+                     throw new \Exception('Unknown Filter type for the Mongo engine.');
+             }
+         }
 
          if($operator === null) {
 
              if(is_array($value))
-                return new In($name, $value, $operator);
+                return new In($field, $value, $operator);
 
              else
-                 return new Equals($name, $value, $operator);
+                 return new Equals($field, $value, $operator);
          }
 
          switch($operator) {
 
              case '__in':
-                 return new In($name, $value, $operator);
+                 return new In($field, $value, $operator);
 
              case '__nin':
-                 return new NotIn($name, $value, $operator);
+                 return new NotIn($field, $value, $operator);
 
              case '__gt':
-                 return new GreaterThan($name, $value, $operator);
+                 return new GreaterThan($field, $value, $operator);
 
              case '__gte':
-                 return new GreaterThanOrEqual($name, $value, $operator);
+                 return new GreaterThanOrEqual($field, $value, $operator);
 
              case '__lt':
-                 return new LessThan($name, $value, $operator);
+                 return new LessThan($field, $value, $operator);
 
              case '__lte':
-                 return new LessThanOrEqual($name, $value, $operator);
+                 return new LessThanOrEqual($field, $value, $operator);
 
              default:
                  throw new \Exception('Could not find a Condition object for operator: ' . $operator);

@@ -5,7 +5,7 @@ namespace Jenga\Db\Engines\Mongo\Query\Conditions;
  *
  * @author Chris Santos
  */
-class LessThanOrEqual extends base {
+class LessThanOrEqual extends Base {
 
     /**
      * @inheritdoc

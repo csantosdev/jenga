@@ -5,7 +5,7 @@ namespace Jenga\Db\Engines\Mongo\Query\Conditions;
  *
  * @author Chris Santos
  */
-class NotIn extends base {
+class NotIn extends Base {
 
     /**
      * @inheritdoc

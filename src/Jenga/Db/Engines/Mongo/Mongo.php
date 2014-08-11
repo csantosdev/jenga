@@ -56,7 +56,7 @@ class Mongo implements \Jenga\Db\Engines\Engine {
         if($this->client === null)
             return false;
 
-        return $this->getMongoClient()->connected();
+        return $this->getMongoClient()->connected;
     }
 
     public function getClient() {
@@ -66,6 +66,10 @@ class Mongo implements \Jenga\Db\Engines\Engine {
 
     public function query($query) {
 
+        if(!$this->isConnected())
+            $this->connect();
+
+        return $this->client->test->posts->find($query); // TODO FIX THIS !!!
     }
 
     private function getMongoClient() {

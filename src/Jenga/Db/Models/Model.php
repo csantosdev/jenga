@@ -1,5 +1,5 @@
 <?php
-namespace Jenga\Models;
+namespace Jenga\Db\Models;
 /**
  * Base model.
  */
@@ -16,11 +16,12 @@ class Model {
      */
     public static function objects() {
 
+        return new Manager(get_class());
     }
 
     public static function onSite() {
 
-        $qs = self::objects()->filter(['client_id' => CLIENT_ACCOUNT_ID]);
+        //$qs = self::objects()->filter(['client_id' => CLIENT_ACCOUNT_ID]);
     }
 
     /**

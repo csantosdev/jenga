@@ -1,5 +1,5 @@
 <?php
-namespace Jenga\Models;
+namespace Jenga\Db\Models;
 /**
  * Responsible for managing model relationships and allowing the developer to query them.
  *
@@ -8,17 +8,28 @@ namespace Jenga\Models;
  */
 class Manager {
 
-    private $model;
+    /**
+     * Class of the model
+     *
+     * @var string
+     */
+    private $model_class;
+
+    /**
+     * Pre-conditions conditions.
+     *
+     * @var array
+     */
     private $conditions = array();
+
     private $select_related_models = array();
 
-    public function __construct(&$model, $conditions = null) {
+    public function __construct($model_class, $conditions = null) {
 
-        $this->model = $model;
+        $this->model_class = $model_class;
 
         if($conditions)
             $this->conditions = $conditions;
-
     }
 
     /**
@@ -52,7 +63,7 @@ class Manager {
     public function filter($conditions) {
 
         $conditions = array_merge($this->conditions, $conditions);
-        return $qs = new QuerySet(new Query($this->model, $conditions, $this->select_related_models));
+        return $qs = new \Jenga\Db\Engines\Mongo\Query\QuerySet(new \Jenga\Db\Engines\Mongo\Query\Query(null, $conditions, $this->select_related_models));
     }
 
     /**

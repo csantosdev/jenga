@@ -7,9 +7,31 @@ namespace Jenga\Db\Engines\Mongo\Query;
  */
 class Query {
 
+    const _OR_ = 'OR';
+
+    private $model;
+
+    /**
+     * @var string
+     */
+    private $model_class;
+
     private $filters = array();
 
-    private $operators = '__isnull|__gte|__lte|__gt|__lt|__in|__exact|__iexact|__contains|__icontains|__startswith|__istartswith|__endswith|__iendswith';
+    private $operators = '__isnull|__gte|__lte|__gt|__lt|__in|__nin|__exact|__iexact|__contains|__icontains|__startswith|__istartswith|__endswith|__iendswith';
+
+    /**
+     * Used to keep track of the current query scope when building the query.
+     *
+     * @var array
+     */
+    private $scope;
+
+    public function __construct($model_class = null, $filters = array(), $select_related = array()) {
+
+        $this->filters = array($filters);
+
+    }
 
     public function filter(array $filter) {
 
@@ -20,41 +42,49 @@ class Query {
 
         $query = array();
 
-        foreach($this->filters as $filter_conditions) {
+        foreach($this->filters as $filter)
+            $query = array_merge($query, $this->_build($filter));
 
-            foreach($filter_conditions as $field => $value) {
+        return $query;
+    }
 
-                /*
-                if(is_int($field)) {
+    private function _build($filter) {
 
-                    if(is_array($value)) {
-                        $conditions[] = $this->build($value);
-                        continue;
+        $query = array('$and' => array());
+        $scope = &$query['$and'];
 
-                    } else if($value === Query::_OR_) {
-                        $conditions[] = 'OR';
-                        continue;
+        foreach($filter as $field => $value) {
+
+            if(is_int($field)) {
+
+                if(is_array($value)) {
+                    $scope[] =$this->_build($value);
+                    continue;
+
+                } else if($value === Query::_OR_) {
+
+                    if(isset($query['$and'])) {
+                        $or = array('$or' => array(
+                            array('$and' => $scope)
+                        ));
+                        $query = $or;
+                        $scope = &$query['$or'];
+
+                    } else if(isset($query['$or'])) {
+
+                    } else {
+                        throw new \Exception('When query building the main key should be using either $and or $or.');
                     }
+
+                    //$condition = new Conditions\_OR_($field, $value, null);
+                   // $query = array_merge($query, $condition->toQuery());
+                    continue;
                 }
-                */
-
-                $operator = $this->findOperator($field);
-                $condition = Conditions\ConditionFactory::get($field, $value, $operator);
-
-                /*
-                Ticket::filter([
-                    'type' => 'Creative',
-                    'status.name' => 'Started',
-                    EmbeddedMatchCondition([
-                        'product.meta.field_id' => 1,
-                        'product.meta.value' => 'Red',
-                        'product.type' => F('type') // {'product.type': }
-                    ])
-                ]);
-                */
-
-                $query = array_merge($query, $condition->toQuery());
             }
+
+            $operator = $this->findOperator($field);
+            $condition = Conditions\ConditionFactory::get($field, $value, $operator);
+            $scope[] = $condition->toQuery();
         }
 
         return $query;
